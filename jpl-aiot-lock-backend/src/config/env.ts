@@ -6,7 +6,11 @@ const requiredEnv = ["DATABASE_URL", "JWT_SECRET", "JWT_REFRESH_SECRET"] as cons
 
 for (const key of requiredEnv) {
   if (!process.env[key]) {
-    throw new Error(`Missing required environment variable: ${key}`);
+    throw new Error(
+      `Missing required environment variable: ${key}\n` +
+        `  → In Railway: Service → Variables → add ${key}\n` +
+        `  → For DATABASE_URL use the reference: $\{\{Postgres.DATABASE_URL\}\}`,
+    );
   }
 }
 
