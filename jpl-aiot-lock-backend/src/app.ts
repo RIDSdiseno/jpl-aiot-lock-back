@@ -6,7 +6,7 @@ import apiRoutes from "./routes";
 
 export const app = express();
 
-app.use(cors({ origin: env.corsOrigin }));
+app.use(cors({ origin: env.corsOrigin, credentials: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 

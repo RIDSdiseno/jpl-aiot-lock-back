@@ -11,7 +11,11 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
   const token = authorization.replace("Bearer ", "").trim();
 
   try {
-    req.user = verifyAccessToken(token);
+    const payload = verifyAccessToken(token);
+    req.user = {
+      ...payload,
+      id: payload.id ?? payload.userId,
+    };
     return next();
   } catch {
     return res.status(401).json({ ok: false, message: "Invalid access token" });

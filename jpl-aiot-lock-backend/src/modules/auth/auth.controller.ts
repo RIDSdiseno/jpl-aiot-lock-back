@@ -16,7 +16,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       ip: req.ip,
       userAgent: req.headers["user-agent"],
     });
-    return res.json({ ok: true, data: result });
+    return res.json({ ok: true, ...result });
   } catch (error) {
     return next(error);
   }
@@ -24,8 +24,8 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
 export async function me(req: Request, res: Response, next: NextFunction) {
   try {
-    const user = await authService.me(req.user!.id);
-    return res.json({ ok: true, data: user });
+    const user = await authService.me(req.user!.userId);
+    return res.json({ ok: true, user });
   } catch (error) {
     return next(error);
   }

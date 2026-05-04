@@ -42,11 +42,18 @@ export async function register(data: RegisterInput) {
 }
 
 export async function login(data: LoginInput, meta?: { ip?: string; userAgent?: string }) {
-  const user = await prisma.user.findUnique({
-    where: { email: data.email },
+  const identifier = data.username ?? data.email;
+
+  if (!identifier) {
+    throw new Error("Invalid credentials");
+  }
+
+  const user = await prisma.user.findFirst({
+    where: { email: identifier },
+    include: { role: true },
   });
 
-  if (!user || user.deletedAt) {
+  if (!user || user.deletedAt || user.status !== "ACTIVE") {
     throw new Error("Invalid credentials");
   }
 
@@ -59,12 +66,13 @@ export async function login(data: LoginInput, meta?: { ip?: string; userAgent?: 
   const updatedUser = await prisma.user.update({
     where: { id: user.id },
     data: { lastLoginAt: new Date() },
+    include: { role: true },
   });
 
   const payload = {
+    userId: updatedUser.id,
     id: updatedUser.id,
-    email: updatedUser.email,
-    roleId: updatedUser.roleId,
+    role: updatedUser.role?.name,
     companyId: updatedUser.companyId,
   };
 
@@ -79,15 +87,17 @@ export async function login(data: LoginInput, meta?: { ip?: string; userAgent?: 
   });
 
   return {
-    user: sanitizeUser(updatedUser),
+    message: "Login exitoso",
     accessToken: signAccessToken(payload),
     refreshToken: signRefreshToken(payload),
+    user: sanitizeUser(updatedUser),
   };
 }
 
 export async function me(userId: string) {
   const user = await prisma.user.findFirstOrThrow({
     where: { id: userId, deletedAt: null },
+    include: { role: true },
   });
 
   return sanitizeUser(user);

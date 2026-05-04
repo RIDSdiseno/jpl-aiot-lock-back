@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { hashPassword } from "../src/utils/password";
 
 const prisma = new PrismaClient();
 
@@ -20,21 +21,26 @@ const permissions = [
   "companies.create",
   "companies.update",
   "companies.delete",
-  "locks.read",
-  "locks.create",
-  "locks.update",
-  "locks.delete",
-  "locks.open",
-  "locks.close",
-  "locks.assign",
-  "locks.revoke",
+  "devices.read",
+  "devices.create",
+  "devices.update",
+  "devices.delete",
+  "devices.open",
+  "devices.close",
+  "devices.assign",
+  "devices.revoke",
   "events.read",
   "commands.read",
   "commands.create",
   "gps.read",
   "alerts.read",
   "alerts.update",
+  "dashboard.read",
+  "reports.read",
   "audit.read",
+  "maintenance.read",
+  "maintenance.create",
+  "maintenance.update",
 ];
 
 function permissionName(code: string) {
@@ -81,6 +87,27 @@ async function main() {
       },
     });
   }
+
+  const passwordHash = await hashPassword("123456");
+
+  await prisma.user.upsert({
+    where: { email: "JPL" },
+    update: {
+      name: "JPL",
+      passwordHash,
+      status: "ACTIVE",
+      companyId: null,
+      roleId: superAdmin.id,
+    },
+    create: {
+      name: "JPL",
+      email: "JPL",
+      passwordHash,
+      status: "ACTIVE",
+      companyId: null,
+      roleId: superAdmin.id,
+    },
+  });
 }
 
 main()

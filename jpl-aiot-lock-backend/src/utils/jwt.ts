@@ -2,9 +2,9 @@ import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import { env } from "../config/env";
 
 export type JwtPayload = {
-  id: string;
-  email: string;
-  roleId?: string | null;
+  userId: string;
+  id?: string;
+  role?: string;
   companyId?: string | null;
 };
 

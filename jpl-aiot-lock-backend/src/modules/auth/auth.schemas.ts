@@ -10,8 +10,12 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string().email(),
+  username: z.string().min(1).optional(),
+  email: z.string().min(1).optional(),
   password: z.string().min(1),
+}).refine((data) => data.username || data.email, {
+  message: "username or email is required",
+  path: ["username"],
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
