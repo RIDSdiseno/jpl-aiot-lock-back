@@ -3,6 +3,7 @@ import express from "express";
 import { env } from "./config/env";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import apiRoutes from "./routes";
+import monitoringRoutes from "./routes/monitoring.routes";
 
 export const app = express();
 
@@ -17,6 +18,14 @@ app.get("/health", (_req, res) => {
     status: "running",
   });
 });
+
+app.use("/api/monitoring", (req, _res, next) => {
+  console.log("[AUTH] bypass monitoring demo route:", req.method, req.originalUrl);
+  next();
+});
+
+app.use("/api/monitoring", monitoringRoutes);
+console.log("[MONITORING] routes mounted at /api/monitoring");
 
 app.use("/api", apiRoutes);
 

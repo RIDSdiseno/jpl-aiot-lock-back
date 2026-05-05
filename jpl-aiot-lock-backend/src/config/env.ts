@@ -63,17 +63,21 @@ const configuredCorsOrigins = (process.env.CORS_ORIGIN ?? process.env.FRONTEND_U
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-const developmentCorsOrigins = [
+const defaultCorsOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174",
+  "https://jplaiotlock.netlify.app",
 ];
+
+const corsOrigins = Array.from(new Set([...configuredCorsOrigins, ...defaultCorsOrigins]));
 
 export const env = {
   nodeEnv,
   port: Number(process.env.PORT) || 3000,
   databaseUrl: process.env.DATABASE_URL as string,
-  corsOrigin: configuredCorsOrigins.length > 0 || isProduction ? configuredCorsOrigins : developmentCorsOrigins,
+  corsOrigin: corsOrigins,
   frontendUrl: process.env.FRONTEND_URL,
   publicBaseUrl: process.env.PUBLIC_BASE_URL,
   jwtSecret: process.env.JWT_SECRET as string,

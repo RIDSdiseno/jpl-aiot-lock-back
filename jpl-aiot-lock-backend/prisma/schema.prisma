@@ -42,6 +42,14 @@ enum LockConnectionType {
   UNKNOWN
 }
 
+enum LockConnectionStatus {
+  ONLINE
+  OFFLINE
+  SLEEP
+  LOST_SIGNAL
+  UNKNOWN
+}
+
 enum AccessStatus {
   ACTIVE
   INACTIVE
@@ -222,14 +230,15 @@ model Branch {
 }
 
 model Lock {
-  id               String              @id @default(uuid())
+  id               String               @id @default(uuid())
   name             String
-  internalCode     String              @unique
-  serialNumber     String?             @unique
-  imei             String?             @unique
-  macAddress       String?             @unique
-  status           LockStatus          @default(ACTIVE)
-  connectionType   LockConnectionType  @default(UNKNOWN)
+  internalCode     String               @unique
+  serialNumber     String?              @unique
+  imei             String?              @unique
+  macAddress       String?              @unique
+  status           LockStatus           @default(ACTIVE)
+  connectionType   LockConnectionType   @default(UNKNOWN)
+  connectionStatus LockConnectionStatus @default(UNKNOWN)
   batteryLevel     Int?
   signalLevel      Int?
   firmwareVersion  String?
@@ -238,11 +247,11 @@ model Lock {
   lastSyncAt       DateTime?
   companyId        String?
   branchId         String?
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
   deletedAt        DateTime?
-  company          Company?            @relation(fields: [companyId], references: [id])
-  branch           Branch?             @relation(fields: [branchId], references: [id])
+  company          Company?             @relation(fields: [companyId], references: [id])
+  branch           Branch?              @relation(fields: [branchId], references: [id])
   accesses         LockAccess[]
   events           LockEvent[]
   commands         LockCommand[]
@@ -254,6 +263,7 @@ model Lock {
   @@index([branchId])
   @@index([status])
   @@index([connectionType])
+  @@index([connectionStatus])
 }
 
 model LockAccess {
@@ -416,4 +426,129 @@ model MaintenanceRecord {
   lock           Lock      @relation(fields: [lockId], references: [id], onDelete: Cascade)
 
   @@index([lockId])
+}
+
+model Device {
+  id          String    @id @default(uuid())
+  providerId String?   @unique
+  deviceId   String    @unique
+  name        String
+  companyId   String?
+  status      String    @default("online")
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([companyId])
+  @@index([status])
+}
+
+model DeviceTelemetry {
+  id           String   @id @default(uuid())
+  deviceId     String
+  battery      Int?
+  signal       Int?
+  speed        Float?
+  latitude     Float?
+  longitude    Float?
+  rawPayload   Json?
+  recordedAt   DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([recordedAt])
+}
+
+model DeviceCommand {
+  id              String   @id @default(uuid())
+  deviceId        String
+  userId          String?
+  command         String
+  status          String   @default("pending")
+  requestPayload  Json?
+  responsePayload Json?
+  createdAt       DateTime @default(now())
+  completedAt     DateTime?
+
+  @@index([deviceId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model DeviceEvent {
+  id         String   @id @default(uuid())
+  deviceId   String
+  type       String
+  message    String?
+  rawPayload Json?
+  createdAt  DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model GeoFence {
+  id        String   @id @default(uuid())
+  name      String
+  companyId String?
+  type      String   @default("circle")
+  centerLat Float
+  centerLng Float
+  radiusMt  Float
+  isActive  Boolean  @default(true)
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([isActive])
+}
+
+model DeviceGeoFence {
+  id         String   @id @default(uuid())
+  deviceId   String
+  geofenceId String
+  syncedAt   DateTime?
+  createdAt  DateTime @default(now())
+
+  @@unique([deviceId, geofenceId])
+  @@index([deviceId])
+  @@index([geofenceId])
+}
+
+model MonitoringAuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  deviceId    String?
+  action      String
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([deviceId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model NfcCard {
+  id        String   @id @default(uuid())
+  cardNo    String   @unique
+  holder    String?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DeviceNfcCard {
+  id        String   @id @default(uuid())
+  deviceId  String
+  nfcCardId String
+  syncedAt  DateTime?
+  createdAt DateTime @default(now())
+
+  @@unique([deviceId, nfcCardId])
+  @@index([deviceId])
+  @@index([nfcCardId])
 }
