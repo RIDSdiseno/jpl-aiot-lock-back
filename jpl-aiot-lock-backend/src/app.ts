@@ -13,8 +13,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/health", (_req, res) => {
   res.json({
     ok: true,
-    service: "JPL-AIOT-LOCK",
-    environment: env.nodeEnv,
+    service: "jpl-aiot-lock-backend",
+    status: "running",
   });
 });
 

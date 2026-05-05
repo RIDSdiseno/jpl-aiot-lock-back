@@ -35,6 +35,8 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
 PORT=3001
 NODE_ENV=development
 CORS_ORIGIN="http://localhost:5173"
+FRONTEND_URL="http://localhost:5173"
+PUBLIC_BASE_URL="http://localhost:3001"
 JWT_SECRET="change_me_super_secret"
 JWT_EXPIRES_IN="15m"
 JWT_REFRESH_SECRET="change_me_refresh_secret"
@@ -42,26 +44,68 @@ JWT_REFRESH_EXPIRES_IN="7d"
 IOT_PROVIDER="mock"
 ```
 
+Obligatorias para iniciar:
+
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `JWT_REFRESH_SECRET`
+
+Opcionales con default seguro:
+
+- `NODE_ENV`: `development`
+- `PORT`: `3000`
+- `JWT_EXPIRES_IN`: `15m`
+- `JWT_REFRESH_EXPIRES_IN`: `7d`
+- `CORS_ORIGIN`: en desarrollo permite localhost; en produccion configuralo explicitamente
+- `FRONTEND_URL`
+- `PUBLIC_BASE_URL`
+- `IOT_PROVIDER`: `mock`
+
 ## Railway
 
 1. Crear un servicio PostgreSQL en Railway.
-2. Copiar la variable `DATABASE_URL`.
-3. Configurar en Railway:
-   - `DATABASE_URL`
-   - `NODE_ENV=production`
-   - `PORT`
-   - `CORS_ORIGIN`
-   - `JWT_SECRET`
-   - `JWT_REFRESH_SECRET`
-   - `IOT_PROVIDER=mock`
+2. En el servicio backend, configurar estas variables:
+
+```env
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+NODE_ENV=production
+JWT_SECRET=<valor-seguro-generado>
+JWT_REFRESH_SECRET=<valor-seguro-distinto-generado>
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+CORS_ORIGIN=https://TU-FRONTEND.netlify.app
+FRONTEND_URL=https://TU-FRONTEND.netlify.app
+PUBLIC_BASE_URL=https://TU-BACKEND.up.railway.app
+```
+
+Genera los secretos JWT con:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+Ejecuta el comando dos veces: una para `JWT_SECRET` y otra distinta para `JWT_REFRESH_SECRET`.
 
 Comandos de produccion:
 
 ```bash
 npm run build
-npm run prisma:deploy
 npm run start
 ```
+
+`postinstall` ejecuta `prisma generate`, por lo que Railway genera Prisma Client al instalar dependencias. No pongas `JWT_SECRET` ni `JWT_REFRESH_SECRET` en Netlify; esos secretos son solo del backend.
+
+## Netlify / Vite
+
+El frontend usa `import.meta.env.VITE_API_URL`.
+
+Configura en Netlify:
+
+```env
+VITE_API_URL=https://TU-BACKEND.up.railway.app/api
+```
+
+No configures secretos JWT en Netlify.
 
 ## Validaciones rapidas
 
