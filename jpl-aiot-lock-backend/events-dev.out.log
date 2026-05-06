@@ -1,0 +1,28 @@
+
+> jpl-aiot-lock-backend@1.0.0 dev
+> ts-node-dev --respawn --transpile-only src/server.ts
+
+[INFO] 11:17:47 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.3)
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3002 in development mode
+prisma:info Starting a postgresql pool with 5 connections.
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."email" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+prisma:query BEGIN
+prisma:query UPDATE "public"."User" SET "lastLoginAt" = $1, "updatedAt" = $2 WHERE ("public"."User"."id" = $3 AND 1=1) RETURNING "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt"
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+prisma:query COMMIT
+prisma:query BEGIN
+prisma:query SELECT "public"."User"."id" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."AuditLog" ("id","userId","action","entity","entityId","description","ipAddress","userAgent","createdAt") VALUES ($1,$2,CAST($3::text AS "public"."AuditAction"),$4,$5,$6,$7,$8,$9) RETURNING "public"."AuditLog"."id"
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE "public"."AuditLog"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query COMMIT
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND "public"."User"."deletedAt" IS NULL) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+[AUTH] bypass monitoring demo route: GET /api/monitoring/devices
+[AUTH] bypass monitoring demo route: GET /api/monitoring/geofences
+[AUTH] bypass monitoring demo route: GET /api/monitoring/devices/1/parameters
+[AUTH] bypass monitoring demo route: GET /api/monitoring/devices/1/parameters
+[AUTH] bypass monitoring demo route: GET /api/monitoring/devices
+[AUTH] bypass monitoring demo route: GET /api/monitoring/geofences

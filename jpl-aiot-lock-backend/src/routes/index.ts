@@ -4,6 +4,8 @@ import alertsRoutes from "../modules/alerts/alerts.routes";
 import authRoutes from "../modules/auth/auth.routes";
 import commandsRoutes from "../modules/commands/commands.routes";
 import companiesRoutes from "../modules/companies/companies.routes";
+import controlRoutes from "../modules/control/control.routes";
+import dashboardRoutes from "../modules/dashboard/dashboard.routes";
 import eventsRoutes from "../modules/events/events.routes";
 import gpsRoutes from "../modules/gps/gps.routes";
 import locksRoutes from "../modules/locks/locks.routes";
@@ -21,6 +23,8 @@ router.get("/", (_req, res) => {
 router.use("/auth", authRoutes);
 router.use("/users", usersRoutes);
 router.use("/companies", companiesRoutes);
+router.use("/dashboard", dashboardRoutes);
+router.use("/control", controlRoutes);
 router.use("/locks", locksRoutes);
 router.use(accessRoutes);
 router.use(commandsRoutes);

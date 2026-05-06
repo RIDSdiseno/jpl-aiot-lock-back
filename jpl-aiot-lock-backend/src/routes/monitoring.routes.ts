@@ -2,193 +2,233 @@ import { Router } from "express";
 
 export const monitoringRoutes = Router();
 
-function currentIso(minutesAgo = 0) {
-  return new Date(Date.now() - minutesAgo * 60_000).toISOString();
-}
+const iso = (minutesAgo = 0) => new Date(Date.now() - minutesAgo * 60_000).toISOString();
+
+const company = { companyId: "demo", companyName: "DEMO" };
 
 const devices = [
   {
-    id: "LOCK-JPL-001",
-    deviceId: "LOCK-JPL-001",
-    name: "Candado Camion Santiago 001",
+    id: "1",
+    deviceId: "198065617508",
+    name: "198065617508(Test)",
+    ...company,
+    model: "Smart Lock",
+    type: "SMART_LOCK",
     status: "ONLINE",
-    battery: 87,
-    signal: "GOOD",
-    latitude: -33.4489,
-    longitude: -70.6693,
-    lastReportAt: currentIso(),
-    hasCutAlarm: false,
-    companyId: "JPL-DEMO",
-    companyName: "JPL Operaciones Demo",
-    connectionMode: "LTE",
-    deviceStatus: "Active",
-    speed: 0,
-    sim: "89560710000000001",
-    lockStatus: "sealed",
-    shackleStatus: "closed",
-    alarmStatus: "Normal",
-    events: ["DEVICE_ONLINE", "LOCATION_REPORTED"],
-    positioningTime: currentIso(),
-    location: "-33.448900, -70.669300",
-    lastSeenAt: currentIso(),
+    isOnline: true,
+    hasActiveAlarm: false,
+    alarmType: null,
+    latitude: 22.68808,
+    longitude: 113.797646,
+    lockStatus: "Seal + Shackle closed",
+    batteryLevel: 100,
+    signalLevel: 80,
+    lastConnectionAt: "2024-01-31T10:47:55.000Z",
+    lastPositioningAt: "2024-01-31T10:47:55.000Z",
   },
   {
-    id: "LOCK-JPL-004",
-    deviceId: "LOCK-JPL-004",
-    name: "Candado Alarma Corte 004",
-    status: "ALARM",
-    battery: 74,
-    signal: "GOOD",
-    latitude: -33.4372,
-    longitude: -70.6506,
-    lastReportAt: currentIso(),
-    hasCutAlarm: true,
-    companyId: "JPL-DEMO",
-    companyName: "JPL Operaciones Demo",
-    connectionMode: "LTE",
-    deviceStatus: "Alarm",
-    speed: 0,
-    sim: "89560710000000004",
-    lockStatus: "sealed",
-    shackleStatus: "closed",
-    alarmStatus: "CUT_ALARM",
-    events: ["CUT_ALARM", "DEMOLITION_ALARM"],
-    positioningTime: currentIso(),
-    location: "-33.437200, -70.650600",
-    lastSeenAt: currentIso(),
-  },
-  {
-    id: "LOCK-JPL-008",
-    deviceId: "LOCK-JPL-008",
-    name: "Candado Sin Reporte 008",
+    id: "2",
+    deviceId: "198065617509",
+    name: "198065617509",
+    ...company,
+    model: "Smart Lock",
+    type: "SMART_LOCK",
     status: "OFFLINE",
-    battery: 0,
-    signal: "NONE",
-    latitude: -33.46,
-    longitude: -70.7,
-    lastReportAt: currentIso(1440),
-    hasCutAlarm: false,
-    companyId: "JPL-DEMO",
-    companyName: "JPL Operaciones Demo",
-    connectionMode: "LTE",
-    deviceStatus: "Offline",
-    speed: 0,
-    sim: "89560710000000008",
-    lockStatus: "sealed",
-    shackleStatus: "closed",
-    alarmStatus: "NO_RECENT_REPORT",
-    events: ["DEVICE_OFFLINE", "NO_RECENT_REPORT"],
-    positioningTime: currentIso(1440),
-    location: "-33.460000, -70.700000",
-    lastSeenAt: currentIso(1440),
+    isOnline: false,
+    hasActiveAlarm: false,
+    alarmType: null,
+    latitude: 22.6845,
+    longitude: 113.7898,
+    lockStatus: "Seal + Shackle closed",
+    batteryLevel: 76,
+    signalLevel: 0,
+    lastConnectionAt: iso(1440),
+    lastPositioningAt: iso(1440),
+  },
+  {
+    id: "3",
+    deviceId: "198065617510",
+    name: "198065617510",
+    ...company,
+    model: "Smart Lock",
+    type: "SMART_LOCK",
+    status: "OFFLINE",
+    isOnline: false,
+    hasActiveAlarm: false,
+    alarmType: null,
+    latitude: 22.6912,
+    longitude: 113.8032,
+    lockStatus: "Seal + Shackle closed",
+    batteryLevel: 61,
+    signalLevel: 0,
+    lastConnectionAt: iso(1320),
+    lastPositioningAt: iso(1320),
+  },
+  {
+    id: "4",
+    deviceId: "198065617511",
+    name: "198065617511",
+    ...company,
+    model: "Smart Lock",
+    type: "SMART_LOCK",
+    status: "OFFLINE",
+    isOnline: false,
+    hasActiveAlarm: false,
+    alarmType: null,
+    latitude: 22.6765,
+    longitude: 113.8101,
+    lockStatus: "Seal + Shackle closed",
+    batteryLevel: 45,
+    signalLevel: 0,
+    lastConnectionAt: iso(950),
+    lastPositioningAt: iso(950),
+  },
+  {
+    id: "5",
+    deviceId: "198065617512",
+    name: "198065617512",
+    ...company,
+    model: "Smart Lock",
+    type: "SMART_LOCK",
+    status: "OFFLINE",
+    isOnline: false,
+    hasActiveAlarm: false,
+    alarmType: null,
+    latitude: 22.6998,
+    longitude: 113.7922,
+    lockStatus: "Seal + Shackle closed",
+    batteryLevel: 33,
+    signalLevel: 0,
+    lastConnectionAt: iso(820),
+    lastPositioningAt: iso(820),
+  },
+  {
+    id: "6",
+    deviceId: "198065617513",
+    name: "198065617513 Alarm Demo",
+    ...company,
+    model: "Smart Lock",
+    type: "SMART_LOCK",
+    status: "ALARM",
+    isOnline: false,
+    hasActiveAlarm: true,
+    alarmType: "TAMPER_ALARM",
+    latitude: 22.704,
+    longitude: 113.805,
+    lockStatus: "Seal + Shackle closed",
+    batteryLevel: 29,
+    signalLevel: 20,
+    lastConnectionAt: iso(25),
+    lastPositioningAt: iso(25),
   },
 ];
 
 const geofences = [
   {
-    id: "GEOFENCE-SCL-001",
-    name: "Zona Operacional Santiago",
-    type: "CIRCLE",
-    latitude: -33.4489,
-    longitude: -70.6693,
-    radiusMeters: 500,
-    active: true,
-    companyId: "JPL-DEMO",
-    companyName: "JPL Operaciones Demo",
-    centerLat: -33.4489,
-    centerLng: -70.6693,
-    radiusMt: 500,
-    isActive: true,
-  },
-  {
-    id: "GEOFENCE-BOD-001",
-    name: "Bodega Central JPL",
-    type: "CIRCLE",
-    latitude: -33.4372,
-    longitude: -70.6506,
-    radiusMeters: 300,
-    active: true,
-    companyId: "JPL-DEMO",
-    companyName: "JPL Operaciones Demo",
-    centerLat: -33.4372,
-    centerLng: -70.6506,
-    radiusMt: 300,
+    id: "demo-fence",
+    name: "Demo Fence",
+    companyId: "demo",
+    companyName: "DEMO",
+    shapeType: "CIRCLE",
+    centerLat: 22.68808,
+    centerLng: 113.797646,
+    radiusMeters: 1200,
+    coordinates: [],
+    status: "ACTIVE",
+    type: "circle",
+    radiusMt: 1200,
     isActive: true,
   },
 ];
 
-const tracking = [
-  { latitude: -33.4511, longitude: -70.6721, speed: 0, heading: 0, recordedAt: currentIso(20), reportedAt: currentIso(20), battery: 87, signal: "GOOD" },
-  { latitude: -33.4504, longitude: -70.6714, speed: 8, heading: 278, recordedAt: currentIso(16), reportedAt: currentIso(16), battery: 87, signal: "GOOD" },
-  { latitude: -33.4498, longitude: -70.6707, speed: 11, heading: 278, recordedAt: currentIso(12), reportedAt: currentIso(12), battery: 86, signal: "GOOD" },
-  { latitude: -33.4493, longitude: -70.67, speed: 6, heading: 278, recordedAt: currentIso(8), reportedAt: currentIso(8), battery: 86, signal: "GOOD" },
-  { latitude: -33.4489, longitude: -70.6693, speed: 0, heading: 0, recordedAt: currentIso(3), reportedAt: currentIso(3), battery: 87, signal: "GOOD" },
-];
+const trajectory = Array.from({ length: 8 }, (_, index) => ({
+  latitude: 22.68808 + (index - 3) * 0.001,
+  longitude: 113.797646 + (index - 3) * 0.0012,
+  speed: index % 2 ? 9 : 0,
+  recordedAt: iso((8 - index) * 5),
+}));
 
-const events = [
-  { id: "EVT-JPL-001", deviceId: "LOCK-JPL-001", type: "DEVICE_ONLINE", message: "Dispositivo en linea", createdAt: currentIso(30) },
-  { id: "EVT-JPL-002", deviceId: "LOCK-JPL-001", type: "LOCATION_REPORTED", message: "Ubicacion reportada", createdAt: currentIso(20) },
-  { id: "EVT-JPL-003", deviceId: "LOCK-JPL-004", type: "CUT_ALARM", message: "Alarma de corte activa", createdAt: currentIso(10) },
-  { id: "EVT-JPL-004", deviceId: "LOCK-JPL-008", type: "DEVICE_OFFLINE", message: "Dispositivo fuera de linea", createdAt: currentIso(1440) },
-];
+function groupDevices(filteredDevices: typeof devices) {
+  return Object.values(
+    filteredDevices.reduce<Record<string, { companyId: string; companyName: string; devices: typeof devices }>>((acc, device) => {
+      acc[device.companyId] ??= { companyId: device.companyId, companyName: device.companyName, devices: [] };
+      acc[device.companyId].devices.push(device);
+      return acc;
+    }, {}),
+  );
+}
 
-const alarms = [
-  { id: "ALM-JPL-001", deviceId: "LOCK-JPL-004", type: "CUT_ALARM", severity: "CRITICAL", status: "ACTIVE", message: "Alarma de corte/demolicion activa", createdAt: currentIso(10), resolvedAt: null },
-  { id: "ALM-JPL-002", deviceId: "LOCK-JPL-008", type: "NO_RECENT_REPORT", severity: "HIGH", status: "ACTIVE", message: "Sin reporte reciente", createdAt: currentIso(1440), resolvedAt: null },
-];
-
-monitoringRoutes.get("/devices", (req, res) => {
-  console.log("[MONITORING] GET /devices");
-  const status = String(req.query.status ?? "").toUpperCase();
-  const q = String(req.query.q ?? "").trim().toLowerCase();
-  const filtered = devices.filter((device) => {
-    const matchesStatus = !status || status === "ALL" || device.status === status;
-    const matchesText = !q || device.name.toLowerCase().includes(q) || device.deviceId.toLowerCase().includes(q);
+function filterDevices(status?: unknown, q?: unknown) {
+  const normalizedStatus = String(status ?? "all").toUpperCase();
+  const text = String(q ?? "").trim().toLowerCase();
+  return devices.filter((device) => {
+    const matchesStatus = normalizedStatus === "ALL" || device.status === normalizedStatus;
+    const matchesText =
+      !text ||
+      device.name.toLowerCase().includes(text) ||
+      device.deviceId.toLowerCase().includes(text) ||
+      device.companyName.toLowerCase().includes(text);
     return matchesStatus && matchesText;
   });
-  res.json({ ok: true, data: filtered, devices: filtered });
+}
+
+monitoringRoutes.get("/devices", (req, res) => {
+  const filtered = filterDevices(req.query.status, req.query.q);
+  res.json({ ok: true, data: groupDevices(filtered), devices: filtered });
 });
 
 monitoringRoutes.get("/devices/search", (req, res) => {
-  const q = String(req.query.q ?? "").trim().toLowerCase();
-  const filtered = q
-    ? devices.filter((device) => device.name.toLowerCase().includes(q) || device.deviceId.toLowerCase().includes(q))
-    : devices;
-  res.json({ ok: true, data: filtered, devices: filtered });
+  const filtered = filterDevices("all", req.query.q);
+  res.json({ ok: true, data: groupDevices(filtered), devices: filtered });
+});
+
+monitoringRoutes.get("/companies/:companyId/devices", (req, res) => {
+  const filtered = filterDevices(req.query.status, req.query.q).filter((device) => device.companyId === req.params.companyId);
+  res.json({ ok: true, data: groupDevices(filtered), devices: filtered });
+});
+
+monitoringRoutes.get("/devices/:deviceId/status", (req, res) => {
+  const device = devices.find((item) => item.id === req.params.deviceId || item.deviceId === req.params.deviceId) ?? devices[0];
+  res.json({ ok: true, data: device, device });
+});
+
+monitoringRoutes.get("/devices/:deviceId/location/current", (req, res) => {
+  const device = devices.find((item) => item.id === req.params.deviceId || item.deviceId === req.params.deviceId) ?? devices[0];
+  res.json({
+    ok: true,
+    data: {
+      deviceId: device.deviceId,
+      latitude: device.latitude,
+      longitude: device.longitude,
+      recordedAt: device.lastPositioningAt,
+    },
+    location: {
+      deviceId: device.deviceId,
+      latitude: device.latitude,
+      longitude: device.longitude,
+      recordedAt: device.lastPositioningAt,
+    },
+  });
+});
+
+monitoringRoutes.get("/devices/:deviceId/tracking", (_req, res) => {
+  res.json({ ok: true, data: trajectory, tracking: trajectory });
+});
+
+monitoringRoutes.get("/devices/:deviceId/trajectory", (_req, res) => {
+  res.json({ ok: true, data: trajectory, trajectory, tracking: trajectory });
 });
 
 monitoringRoutes.get("/geofences", (req, res) => {
-  console.log("[MONITORING] GET /geofences");
-  const q = String(req.query.q ?? "").trim().toLowerCase();
-  const filtered = q ? geofences.filter((geofence) => geofence.name.toLowerCase().includes(q)) : geofences;
+  const text = String(req.query.q ?? "").trim().toLowerCase();
+  const filtered = text ? geofences.filter((fence) => fence.name.toLowerCase().includes(text)) : geofences;
   res.json({ ok: true, data: filtered, geofences: filtered });
 });
 
 monitoringRoutes.get("/geofences/search", (req, res) => {
-  const q = String(req.query.q ?? "").trim().toLowerCase();
-  const filtered = q ? geofences.filter((geofence) => geofence.name.toLowerCase().includes(q)) : geofences;
+  const text = String(req.query.q ?? "").trim().toLowerCase();
+  const filtered = text ? geofences.filter((fence) => fence.name.toLowerCase().includes(text)) : geofences;
   res.json({ ok: true, data: filtered, geofences: filtered });
-});
-
-monitoringRoutes.get("/devices/:deviceId/status", (req, res) => {
-  const device = devices.find((item) => item.id === req.params.deviceId || item.deviceId === req.params.deviceId);
-  res.json({ ok: true, data: device ?? devices[0], device: device ?? devices[0] });
-});
-
-monitoringRoutes.get("/devices/:deviceId/tracking", (_req, res) => {
-  res.json({ ok: true, data: tracking, tracking });
-});
-
-monitoringRoutes.get("/devices/:deviceId/trajectory", (_req, res) => {
-  res.json({ ok: true, data: tracking, trajectory: tracking, tracking });
-});
-
-monitoringRoutes.get("/events", (_req, res) => {
-  res.json({ ok: true, data: events, events });
-});
-
-monitoringRoutes.get("/alarms", (_req, res) => {
-  res.json({ ok: true, data: alarms, alarms });
 });
 
 export default monitoringRoutes;

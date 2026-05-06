@@ -464,10 +464,22 @@ model DeviceCommand {
   deviceId        String
   userId          String?
   command         String
+  commandType     String?
+  commandContent  String?
   status          String   @default("pending")
+  isReserved      Boolean  @default(false)
+  isCancelled     Boolean  @default(false)
+  requestedByUserId String?
+  operatorName    String?
+  payload         Json?
   requestPayload  Json?
   responsePayload Json?
+  responseContent String?
+  executeWhenOnline Boolean @default(false)
+  executionTime   DateTime?
+  expiresAt       DateTime?
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   completedAt     DateTime?
 
   @@index([deviceId])
@@ -545,10 +557,60 @@ model DeviceNfcCard {
   id        String   @id @default(uuid())
   deviceId  String
   nfcCardId String
+  cardNumber String?
+  blockNumber String?
+  status    String   @default("ACTIVE")
   syncedAt  DateTime?
+  createdById String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([deviceId, nfcCardId])
   @@index([deviceId])
   @@index([nfcCardId])
+}
+
+model DeviceParameterSnapshot {
+  id        String   @id @default(uuid())
+  deviceId  String
+  category  String
+  parameters Json
+  readById  String?
+  readAt    DateTime @default(now())
+  rawPayload Json?
+
+  @@index([deviceId])
+  @@index([category])
+  @@index([readAt])
+}
+
+model DeviceParameterChangeLog {
+  id           String   @id @default(uuid())
+  deviceId     String
+  parameterKey String
+  oldValue     String?
+  newValue     String?
+  changedById  String?
+  commandId    String?
+  result       String?
+  createdAt    DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([parameterKey])
+  @@index([commandId])
+  @@index([createdAt])
+}
+
+model DynamicPasswordAuditLog {
+  id        String   @id @default(uuid())
+  deviceId  String
+  viewedById String?
+  ipAddress String?
+  userAgent String?
+  result    String
+  createdAt DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([viewedById])
+  @@index([createdAt])
 }

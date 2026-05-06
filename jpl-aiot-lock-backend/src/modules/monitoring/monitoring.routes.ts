@@ -9,6 +9,7 @@ monitoringRoutes.use(authMiddleware);
 monitoringRoutes.get("/summary", controller.getSummary);
 monitoringRoutes.get("/companies-tree", controller.getCompaniesTree);
 monitoringRoutes.get("/devices/search", controller.searchDevices);
+monitoringRoutes.get("/companies/:companyId/devices", controller.listCompanyDevices);
 monitoringRoutes.get("/devices/:deviceId/status", controller.getDeviceStatus);
 monitoringRoutes.get("/devices/:deviceId/tracking", controller.getDeviceTracking);
 monitoringRoutes.get("/devices/:deviceId/location/current", controller.getCurrentLocation);

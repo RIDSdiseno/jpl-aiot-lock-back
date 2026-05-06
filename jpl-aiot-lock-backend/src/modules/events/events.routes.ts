@@ -7,6 +7,13 @@ import * as eventsController from "./events.controller";
 const router = Router();
 
 router.use(authMiddleware);
+router.get("/events/all", eventsController.listAll);
+router.get("/events/all/export", eventsController.exportAll);
+router.get("/events/alarms", eventsController.listAlarms);
+router.get("/events/alarms/export", eventsController.exportAlarms);
+router.get("/events/push", eventsController.listPush);
+router.get("/events/push/export", eventsController.exportPush);
+router.get("/events/summary", eventsController.summary);
 router.get("/events", eventsController.list);
 router.get(
   "/locks/:lockId/events",

@@ -4,12 +4,34 @@ import * as locations from "./device-location.service";
 import * as statusService from "./device-status.service";
 import * as monitoring from "./monitoring.service";
 import { auditMonitoringAction } from "./monitoring-audit.service";
+import type { MonitoringDevice } from "./monitoring.types";
+
+function groupDevices(devices: MonitoringDevice[]) {
+  return Object.values(
+    devices.reduce<Record<string, { companyId: string; companyName: string; devices: MonitoringDevice[] }>>((acc, device) => {
+      acc[device.companyId] ??= { companyId: device.companyId, companyName: device.companyName, devices: [] };
+      acc[device.companyId].devices.push(device);
+      return acc;
+    }, {}),
+  );
+}
 
 export async function listDevices(req: Request, res: Response, next: NextFunction) {
   try {
     console.log("[MONITORING] GET /devices");
     const devices = await monitoring.getDevices(req.user ?? {}, req.query.status as string | undefined, req.query.q as string | undefined);
-    res.json({ ok: true, devices });
+    res.json({ ok: true, data: groupDevices(devices), devices });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function listCompanyDevices(req: Request, res: Response, next: NextFunction) {
+  try {
+    const devices = (await monitoring.getDevices(req.user ?? {}, req.query.status as string | undefined, req.query.q as string | undefined)).filter(
+      (device) => device.companyId === req.params.companyId,
+    );
+    res.json({ ok: true, data: groupDevices(devices), devices });
   } catch (error) {
     next(error);
   }
@@ -93,7 +115,7 @@ export async function getCompaniesTree(req: Request, res: Response, next: NextFu
 export async function searchDevices(req: Request, res: Response, next: NextFunction) {
   try {
     const devices = await monitoring.searchDevices(req.user ?? {}, req.query.q as string | undefined);
-    res.json({ ok: true, devices });
+    res.json({ ok: true, data: groupDevices(devices), devices });
   } catch (error) {
     next(error);
   }
@@ -245,7 +267,8 @@ export async function deleteNfcCards(req: Request, res: Response, next: NextFunc
 export async function listGeofences(req: Request, res: Response, next: NextFunction) {
   try {
     console.log("[MONITORING] GET /geofences");
-    res.json({ ok: true, geofences: await monitoring.getGeofences(req.user ?? {}, req.query.q as string | undefined) });
+    const geofences = await monitoring.getGeofences(req.user ?? {}, req.query.q as string | undefined);
+    res.json({ ok: true, data: geofences, geofences });
   } catch (error) {
     next(error);
   }
@@ -253,7 +276,8 @@ export async function listGeofences(req: Request, res: Response, next: NextFunct
 
 export async function searchGeofences(req: Request, res: Response, next: NextFunction) {
   try {
-    res.json({ ok: true, geofences: await monitoring.getGeofences(req.user ?? {}, req.query.q as string | undefined) });
+    const geofences = await monitoring.getGeofences(req.user ?? {}, req.query.q as string | undefined);
+    res.json({ ok: true, data: geofences, geofences });
   } catch (error) {
     next(error);
   }
