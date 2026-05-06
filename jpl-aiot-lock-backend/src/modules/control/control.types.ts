@@ -24,11 +24,14 @@ export interface ControlCompanyGroup {
 
 export type DeviceCommandStatus =
   | "PENDING"
+  | "SENDING"
+  | "SUCCESS"
   | "RESERVED"
   | "SENT"
   | "RECEIVED"
   | "EXECUTED"
   | "FAILED"
+  | "TIMEOUT"
   | "CANCELLED"
   | "EXPIRED";
 
@@ -36,14 +39,21 @@ export interface DeviceCommandRecord {
   id: string;
   sortNo?: number;
   deviceId: string;
+  deviceName?: string;
   commandContent?: string;
   commandType: string;
   status: DeviceCommandStatus;
+  progress?: number;
+  payloadSummary?: string;
+  payload?: Record<string, unknown>;
+  response?: Record<string, unknown>;
   executionTime?: string;
   responseContent?: string;
   submittedReservedCommand?: boolean;
   operator?: string;
+  operatorId?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface DeviceParameterField {

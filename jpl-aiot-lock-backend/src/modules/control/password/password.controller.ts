@@ -11,3 +11,12 @@ export function getDynamicPassword(req: Request, res: Response, next: NextFuncti
     next(error);
   }
 }
+
+export function updateDynamicPassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    requireControlPermission(req, "CONTROL_PASSWORD_VIEW");
+    res.json(ok(service.updateDynamicPassword(req.params.deviceId, req.user?.id)));
+  } catch (error) {
+    next(error);
+  }
+}

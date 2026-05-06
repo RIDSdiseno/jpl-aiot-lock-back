@@ -1,0 +1,7 @@
+
+> jpl-aiot-lock-backend@1.0.0 dev
+> ts-node-dev --respawn --transpile-only src/server.ts
+
+[INFO] 16:25:13 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.3)
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3002 in development mode

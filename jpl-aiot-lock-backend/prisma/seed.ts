@@ -761,6 +761,284 @@ async function main() {
     });
   }
 
+  const deviceTypes = ["G_LOCK", "B_LOCK", "B_LOCK", "SMART_LOCK", "GPS_TRACKER", "E_SEAL"] as const;
+  const productModels = ["G300N", "B168", "B102", "G310N", "GT06N", "ES200"] as const;
+  const onlineStatuses = ["ONLINE", "OFFLINE", "OFFLINE", "OFFLINE", "DORMANT", "ALARM", "MAINTENANCE", "UPDATING"] as const;
+
+  for (let index = 1; index <= 520; index += 1) {
+    const type = deviceTypes[index % deviceTypes.length];
+    const model = productModels[index % productModels.length];
+    const onlineStatus = onlineStatuses[index % onlineStatuses.length];
+    const deviceId = `JPL-AIOT-${String(index).padStart(5, "0")}`;
+    const lat = -33.4489 + (index % 30) * 0.006;
+    const lng = -70.6693 - (index % 25) * 0.006;
+    await prisma.device.upsert({
+      where: { deviceId },
+      update: {
+        name: `JPL ${model} ${String(index).padStart(3, "0")}`,
+        deviceType: type,
+        productModel: model,
+        companyId: jplCompany.id,
+        firmwareVersion: `2.${index % 8}.${index % 10}`,
+        batteryLevel: Math.max(5, 100 - (index % 95)),
+        signalStrength: onlineStatus === "OFFLINE" ? 0 : 30 + (index % 70),
+        onlineStatus,
+        lockStatus: index % 3 === 0 ? "LOCKED" : "UNLOCKED",
+        shackleStatus: index % 4 === 0 ? "OPEN" : "CLOSED",
+        lastConnectionAt: minutesAgo(index % 1440),
+        lastLocationLat: lat,
+        lastLocationLng: lng,
+        lastAddress: `Mock address ${index}, Santiago`,
+        notes: "Persistent mock device for HHDlink Device Management",
+      },
+      create: {
+        deviceId,
+        name: `JPL ${model} ${String(index).padStart(3, "0")}`,
+        deviceType: type,
+        productModel: model,
+        companyId: jplCompany.id,
+        imei: `9900000000${String(index).padStart(5, "0")}`,
+        serialNumber: `SN-JPL-${String(index).padStart(5, "0")}`,
+        simNumber: `SIM-${String(index).padStart(5, "0")}`,
+        iccid: `895607${String(index).padStart(14, "0")}`,
+        firmwareVersion: `2.${index % 8}.${index % 10}`,
+        hardwareVersion: "JPL-HW-2",
+        bluetoothName: `JPL-BLE-${String(index).padStart(5, "0")}`,
+        batteryLevel: Math.max(5, 100 - (index % 95)),
+        signalStrength: onlineStatus === "OFFLINE" ? 0 : 30 + (index % 70),
+        onlineStatus,
+        lockStatus: index % 3 === 0 ? "LOCKED" : "UNLOCKED",
+        shackleStatus: index % 4 === 0 ? "OPEN" : "CLOSED",
+        lastConnectionAt: minutesAgo(index % 1440),
+        lastLocationLat: lat,
+        lastLocationLng: lng,
+        lastAddress: `Mock address ${index}, Santiago`,
+        notes: "Persistent mock device for HHDlink Device Management",
+      },
+    });
+
+    if (index <= 120) {
+      await prisma.deviceHistoryData.upsert({
+        where: { id: `history-${deviceId}` },
+        update: {
+          reportType: index % 5 === 0 ? "SUPPLEMENTARY" : "REALTIME",
+          reportedAt: minutesAgo(index * 3),
+          longitude: lng,
+          latitude: lat,
+          address: `Mock address ${index}, Santiago`,
+          lockStatus: index % 3 === 0 ? "LOCKED" : "UNLOCKED",
+          shackleStatus: index % 4 === 0 ? "OPEN" : "CLOSED",
+          batteryLevel: Math.max(5, 100 - (index % 95)),
+          signalStrength: onlineStatus === "OFFLINE" ? 0 : 30 + (index % 70),
+          temperature: 18 + (index % 14),
+          speed: index % 6 === 0 ? 42 : 0,
+          rawPayloadJson: { mock: true, frame: index, onlineStatus },
+        },
+        create: {
+          id: `history-${deviceId}`,
+          deviceId,
+          reportType: index % 5 === 0 ? "SUPPLEMENTARY" : "REALTIME",
+          reportedAt: minutesAgo(index * 3),
+          longitude: lng,
+          latitude: lat,
+          address: `Mock address ${index}, Santiago`,
+          lockStatus: index % 3 === 0 ? "LOCKED" : "UNLOCKED",
+          shackleStatus: index % 4 === 0 ? "OPEN" : "CLOSED",
+          batteryLevel: Math.max(5, 100 - (index % 95)),
+          signalStrength: onlineStatus === "OFFLINE" ? 0 : 30 + (index % 70),
+          temperature: 18 + (index % 14),
+          speed: index % 6 === 0 ? 42 : 0,
+          rawPayloadJson: { mock: true, frame: index, onlineStatus },
+        },
+      });
+    }
+
+    if (index <= 12) {
+      await prisma.deviceAlarmPolicy.upsert({
+        where: { id: `alarm-policy-${deviceId}` },
+        update: {
+          receivePhones: "+56911112222",
+          receiveEmails: "ops@jpl-demo.local",
+          pushSmsEnabled: true,
+          pushEmailEnabled: true,
+          sendingEventTypes: "ALL_ALARMS,LOW_BATTERY_ALARM,GEOFENCE_ALARM,TAMPER_ALARM",
+          enabled: true,
+          remarks: "Default mock push policy",
+        },
+        create: {
+          id: `alarm-policy-${deviceId}`,
+          deviceId,
+          receivePhones: "+56911112222",
+          receiveEmails: "ops@jpl-demo.local",
+          pushSmsEnabled: true,
+          pushEmailEnabled: true,
+          sendingEventTypes: "ALL_ALARMS,LOW_BATTERY_ALARM,GEOFENCE_ALARM,TAMPER_ALARM",
+          enabled: true,
+          remarks: "Default mock push policy",
+          createdById: operator.id,
+        },
+      });
+    }
+  }
+
+  for (const firmware of [
+    ["G_LOCK", "G300N", "MASTER_MCU", "G300N-main-2.4.1.bin", "2.4.1", 204800],
+    ["B_LOCK", "B168", "BLUETOOTH_MCU", "B168-ble-1.9.0.zip", "1.9.0", 102400],
+    ["SMART_LOCK", "G310N", "MASTER_MCU", "G310N-main-3.1.2.bin", "3.1.2", 307200],
+  ] as const) {
+    const [deviceType, productModel, firmwareType, fileName, versionName, fileSize] = firmware;
+    await prisma.firmwareFile.upsert({
+      where: { deviceType_productModel_firmwareType_versionName: { deviceType, productModel, firmwareType, versionName } },
+      update: { fileName, filePath: `/firmware/${fileName}`, fileSize, description: "Mock firmware package", uploadedById: operator.id },
+      create: { deviceType, productModel, firmwareType, versionName, fileName, filePath: `/firmware/${fileName}`, fileSize, description: "Mock firmware package", uploadedById: operator.id },
+    });
+  }
+
+  const historyDevices = await prisma.device.findMany({ where: { deletedAt: null }, take: 1000 });
+  for (let index = 1; index <= 1000; index += 1) {
+    const device = historyDevices[index % Math.max(1, historyDevices.length)];
+    if (!device) break;
+    const company = device.companyId ? await prisma.company.findUnique({ where: { id: device.companyId } }) : null;
+    await prisma.deviceHistoryData.upsert({
+      where: { id: `hhdlink-history-${index}` },
+      update: {
+        deviceId: device.deviceId,
+        deviceName: device.name,
+        deviceType: device.deviceType,
+        productModel: device.productModel,
+        companyId: device.companyId,
+        companyName: company?.name,
+        reportType: index % 5 === 0 ? "SUPPLEMENTARY" : "REALTIME",
+        reportedAt: minutesAgo(index * 2),
+        longitude: (device.lastLocationLng ?? -70.6693) - (index % 20) * 0.001,
+        latitude: (device.lastLocationLat ?? -33.4489) + (index % 20) * 0.001,
+        address: device.lastAddress ?? `HHDlink mock address ${index}`,
+        lockStatus: index % 3 === 0 ? "LOCKED" : index % 3 === 1 ? "UNLOCKED" : "UNKNOWN",
+        shackleStatus: index % 7 === 0 ? "TAMPERED" : index % 5 === 0 ? "CUT" : index % 2 === 0 ? "OPEN" : "CLOSED",
+        batteryLevel: Math.max(1, 100 - (index % 98)),
+        signalStrength: 20 + (index % 80),
+        temperature: 15 + (index % 18),
+        speed: index % 4 === 0 ? 35 + (index % 40) : 0,
+        firmwareVersion: device.firmwareVersion,
+        rawPayloadJson: { source: "HHDLINK_MOCK", seq: index, supplementary: index % 5 === 0 },
+        source: "MOCK",
+      },
+      create: {
+        id: `hhdlink-history-${index}`,
+        deviceId: device.deviceId,
+        deviceName: device.name,
+        deviceType: device.deviceType,
+        productModel: device.productModel,
+        companyId: device.companyId,
+        companyName: company?.name,
+        reportType: index % 5 === 0 ? "SUPPLEMENTARY" : "REALTIME",
+        reportedAt: minutesAgo(index * 2),
+        longitude: (device.lastLocationLng ?? -70.6693) - (index % 20) * 0.001,
+        latitude: (device.lastLocationLat ?? -33.4489) + (index % 20) * 0.001,
+        address: device.lastAddress ?? `HHDlink mock address ${index}`,
+        lockStatus: index % 3 === 0 ? "LOCKED" : index % 3 === 1 ? "UNLOCKED" : "UNKNOWN",
+        shackleStatus: index % 7 === 0 ? "TAMPERED" : index % 5 === 0 ? "CUT" : index % 2 === 0 ? "OPEN" : "CLOSED",
+        batteryLevel: Math.max(1, 100 - (index % 98)),
+        signalStrength: 20 + (index % 80),
+        temperature: 15 + (index % 18),
+        speed: index % 4 === 0 ? 35 + (index % 40) : 0,
+        firmwareVersion: device.firmwareVersion,
+        rawPayloadJson: { source: "HHDLINK_MOCK", seq: index, supplementary: index % 5 === 0 },
+        source: "MOCK",
+      },
+    });
+  }
+
+  const firmwareFiles = await prisma.firmwareFile.findMany({ where: { deletedAt: null }, take: 4 });
+  for (let index = 0; index < Math.min(8, historyDevices.length, firmwareFiles.length * 2); index += 1) {
+    const device = historyDevices[index];
+    const firmware = firmwareFiles.find((item) => item.deviceType === device.deviceType && item.productModel === device.productModel) ?? firmwareFiles[index % firmwareFiles.length];
+    if (!firmware) continue;
+    await prisma.otaUpgradeRecord.upsert({
+      where: { id: `hhdlink-ota-${index + 1}` },
+      update: {
+        deviceId: device.deviceId,
+        deviceName: device.name,
+        productModel: device.productModel,
+        companyId: device.companyId,
+        firmwareFileId: firmware.id,
+        firmwareType: firmware.firmwareType,
+        fromVersion: device.firmwareVersion,
+        toVersion: firmware.versionName,
+        targetVersion: firmware.versionName,
+        status: ["PENDING", "UPDATING", "SUCCESS", "FAILED"][index % 4],
+        progress: [0, 65, 100, 35][index % 4],
+        startedAt: minutesAgo(120 - index * 10),
+        finishedAt: index % 4 >= 2 ? minutesAgo(90 - index * 10) : null,
+        errorMessage: index % 4 === 3 ? "Mock verification failed" : null,
+        createdById: operator.id,
+        createdByName: operator.name,
+      },
+      create: {
+        id: `hhdlink-ota-${index + 1}`,
+        deviceId: device.deviceId,
+        deviceName: device.name,
+        productModel: device.productModel,
+        companyId: device.companyId,
+        firmwareFileId: firmware.id,
+        firmwareType: firmware.firmwareType,
+        fromVersion: device.firmwareVersion,
+        toVersion: firmware.versionName,
+        targetVersion: firmware.versionName,
+        status: ["PENDING", "UPDATING", "SUCCESS", "FAILED"][index % 4],
+        progress: [0, 65, 100, 35][index % 4],
+        startedAt: minutesAgo(120 - index * 10),
+        finishedAt: index % 4 >= 2 ? minutesAgo(90 - index * 10) : null,
+        errorMessage: index % 4 === 3 ? "Mock verification failed" : null,
+        createdById: operator.id,
+        createdByName: operator.name,
+      },
+    });
+  }
+
+  const diagnosisTypes = ["NETWORK", "BLUETOOTH", "HARDWARE", "FIRMWARE", "GPS", "NFC", "BATTERY", "COMMUNICATION"] as const;
+  const logLevels = ["INFO", "WARNING", "ERROR", "CRITICAL"] as const;
+  for (let index = 1; index <= 80; index += 1) {
+    const device = historyDevices[index % Math.max(1, historyDevices.length)];
+    if (!device) break;
+    await prisma.deviceDiagnosisLog.upsert({
+      where: { id: `hhdlink-diagnosis-${index}` },
+      update: {
+        deviceId: device.deviceId,
+        deviceName: device.name,
+        productModel: device.productModel,
+        companyId: device.companyId,
+        diagnosisType: diagnosisTypes[index % diagnosisTypes.length],
+        logLevel: logLevels[index % logLevels.length],
+        summary: `Mock diagnosis ${index} for ${device.deviceId}`,
+        fullLog: `[${new Date().toISOString()}] Device ${device.deviceId} diagnostic frame ${index}\nNetwork RSSI=${device.signalStrength ?? 0}\nBattery=${device.batteryLevel ?? 0}`,
+        rawPayloadJson: { source: "APP_BLUETOOTH", frame: index },
+        source: index % 3 === 0 ? "APP_BLUETOOTH" : "MOCK",
+        uploadedById: operator.id,
+        uploadedByName: operator.name,
+        uploadedAt: minutesAgo(index * 11),
+      },
+      create: {
+        id: `hhdlink-diagnosis-${index}`,
+        deviceId: device.deviceId,
+        deviceName: device.name,
+        productModel: device.productModel,
+        companyId: device.companyId,
+        diagnosisType: diagnosisTypes[index % diagnosisTypes.length],
+        logLevel: logLevels[index % logLevels.length],
+        summary: `Mock diagnosis ${index} for ${device.deviceId}`,
+        fullLog: `[${new Date().toISOString()}] Device ${device.deviceId} diagnostic frame ${index}\nNetwork RSSI=${device.signalStrength ?? 0}\nBattery=${device.batteryLevel ?? 0}`,
+        rawPayloadJson: { source: "APP_BLUETOOTH", frame: index },
+        source: index % 3 === 0 ? "APP_BLUETOOTH" : "MOCK",
+        uploadedById: operator.id,
+        uploadedByName: operator.name,
+        uploadedAt: minutesAgo(index * 11),
+      },
+    });
+  }
+
+  console.log(`${seedPrefix} Device management mock data created`);
+
   console.log(`${seedPrefix} Demo seed completed`);
 }
 

@@ -8,7 +8,8 @@ const userId = (req: Request) => req.user?.id;
 export function getCards(req: Request, res: Response, next: NextFunction) {
   try {
     requireControlPermission(req, "CONTROL_NFC_VIEW");
-    res.json(ok(service.getNfcCards(req.params.deviceId)));
+    const block = req.query.block ? `Block ${req.query.block}` : String(req.query.blockNumber ?? "Block 1");
+    res.json(ok(service.getNfcCards(req.params.deviceId, block)));
   } catch (error) {
     next(error);
   }
@@ -17,7 +18,8 @@ export function getCards(req: Request, res: Response, next: NextFunction) {
 export function readCards(req: Request, res: Response, next: NextFunction) {
   try {
     requireControlPermission(req, "CONTROL_NFC_READ");
-    res.json(ok(service.readNfcCards(req.params.deviceId, userId(req))));
+    const block = req.body.block ? `Block ${req.body.block}` : String(req.body.blockNumber ?? "Block 1");
+    res.json(ok(service.readNfcCards(req.params.deviceId, block, userId(req))));
   } catch (error) {
     next(error);
   }
@@ -35,7 +37,7 @@ export function addCard(req: Request, res: Response, next: NextFunction) {
 export function syncCards(req: Request, res: Response, next: NextFunction) {
   try {
     requireControlPermission(req, "CONTROL_NFC_SYNC");
-    res.json(ok(service.syncNfcCards(req.params.deviceId, userId(req))));
+    res.json(ok(service.syncNfcCards(req.params.deviceId, userId(req), req.body.cards)));
   } catch (error) {
     next(error);
   }

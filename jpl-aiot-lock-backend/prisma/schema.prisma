@@ -429,19 +429,190 @@ model MaintenanceRecord {
 }
 
 model Device {
-  id          String    @id @default(uuid())
-  providerId String?   @unique
-  deviceId   String    @unique
-  name        String
-  companyId   String?
-  status      String    @default("online")
-  metadata    Json?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+  id                    String    @id @default(uuid())
+  providerId            String?   @unique
+  deviceId              String    @unique
+  name                  String
+  deviceType            String    @default("SMART_LOCK")
+  productModel          String    @default("G300N")
+  companyId             String?
+  imei                  String?
+  serialNumber          String?
+  simNumber             String?
+  iccid                 String?
+  firmwareVersion       String?
+  hardwareVersion       String?
+  bluetoothName         String?
+  bleMac                String?
+  nfcSupported          Boolean   @default(true)
+  gpsSupported          Boolean   @default(true)
+  loraSupported         Boolean   @default(false)
+  remoteUnlockSupported Boolean   @default(true)
+  keyboardSupported     Boolean   @default(false)
+  batteryLevel          Int?
+  signalStrength        Int?
+  lockStatus            String?
+  shackleStatus         String?
+  onlineStatus          String    @default("OFFLINE")
+  lastConnectionAt      DateTime?
+  lastLocationLat       Float?
+  lastLocationLng       Float?
+  lastAddress           String?
+  status                String    @default("ACTIVE")
+  notes                 String?
+  metadata              Json?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
 
   @@index([companyId])
   @@index([status])
+  @@index([onlineStatus])
+  @@index([deviceType])
+  @@index([productModel])
+  @@index([imei])
+  @@index([serialNumber])
+}
+
+model DeviceAlarmPolicy {
+  id                String   @id @default(uuid())
+  deviceId          String
+  receivePhones     String?
+  receiveEmails     String?
+  pushSmsEnabled    Boolean  @default(false)
+  pushEmailEnabled  Boolean  @default(false)
+  sendingEventTypes String
+  enabled           Boolean  @default(true)
+  remarks           String?
+  createdById       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([deviceId])
+  @@index([enabled])
+}
+
+model DeviceCompanyAssignmentHistory {
+  id            String   @id @default(uuid())
+  deviceId      String
+  fromCompanyId String?
+  toCompanyId   String
+  assignedById  String?
+  remarks       String?
+  createdAt     DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([toCompanyId])
+}
+
+model DeviceHistoryData {
+  id             String   @id @default(uuid())
+  deviceId       String
+  deviceName     String?
+  deviceType     String?
+  productModel   String?
+  companyId      String?
+  companyName    String?
+  reportType     String   @default("REALTIME")
+  reportedAt     DateTime @default(now())
+  longitude      Float?
+  latitude       Float?
+  address        String?
+  lockStatus     String?
+  shackleStatus  String?
+  batteryLevel   Int?
+  signalStrength Int?
+  temperature    Float?
+  speed          Float?
+  firmwareVersion String?
+  rawPayloadJson Json?
+  source         String?
+  createdAt      DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([companyId])
+  @@index([reportType])
+  @@index([reportedAt])
+}
+
+model FirmwareFile {
+  id           String    @id @default(uuid())
+  deviceType   String
+  productModel String
+  firmwareType String
+  versionName  String
+  fileName     String
+  originalFileName String?
+  filePath     String
+  fileSize     Int
+  mimeType     String?
+  checksum     String?
+  description  String?
+  uploadedById String?
+  uploadedByName String?
+  uploadedAt   DateTime  @default(now())
+  deletedAt    DateTime?
+
+  @@unique([deviceType, productModel, firmwareType, versionName])
+  @@index([deviceType])
+  @@index([productModel])
+  @@index([firmwareType])
+}
+
+model OtaUpgradeRecord {
+  id                  String    @id @default(uuid())
+  deviceId            String
+  deviceName          String?
+  productModel        String?
+  companyId           String?
+  firmwareFileId      String
+  firmwareType        String
+  fromVersion         String?
+  toVersion           String
+  targetVersion       String?
+  status              String    @default("PENDING")
+  progress            Int       @default(0)
+  commandId           String?
+  commandPayloadJson  Json?
+  responsePayloadJson Json?
+  errorMessage        String?
+  startedAt           DateTime?
+  finishedAt          DateTime?
+  verifiedAt          DateTime?
+  createdById         String?
+  createdByName       String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([deviceId])
+  @@index([firmwareFileId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model DeviceDiagnosisLog {
+  id             String   @id @default(uuid())
+  deviceId       String
+  deviceName     String?
+  productModel   String?
+  companyId      String?
+  diagnosisType  String   @default("UNKNOWN")
+  logLevel       String   @default("INFO")
+  summary        String
+  fullLog        String
+  rawPayloadJson Json?
+  source         String   @default("MOCK")
+  attachmentUrl  String?
+  uploadedById   String?
+  uploadedByName String?
+  uploadedAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([companyId])
+  @@index([diagnosisType])
+  @@index([logLevel])
+  @@index([uploadedAt])
 }
 
 model DeviceTelemetry {
@@ -563,7 +734,7 @@ model DeviceNfcCard {
   syncedAt  DateTime?
   createdById String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@unique([deviceId, nfcCardId])
   @@index([deviceId])

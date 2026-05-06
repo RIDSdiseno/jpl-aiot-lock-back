@@ -1,0 +1,63 @@
+
+> jpl-aiot-lock-backend@1.0.0 dev
+> ts-node-dev --respawn --transpile-only src/server.ts
+
+[INFO] 14:25:19 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.3)
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:45:23 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\commands\command-record.service.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:45:35 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\commands\command-record.controller.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:45:42 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\commands\command-record.routes.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:46:11 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\nfc\nfc.service.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:46:24 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\nfc\nfc.controller.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:46:39 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\password\password.service.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:46:50 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\password\password.controller.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:47:15 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\password\password.routes.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:47:38 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\parameters\parameter.service.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:48:36 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\control.routes.ts has been modified
+[ERROR] 14:48:39 Error: Route.get() requires a callback function but got a [object Undefined]
+[INFO] 14:49:06 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\control.controller.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:49:19 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\control.controller.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:53:20 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\nfc\nfc.service.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:53:32 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\nfc\nfc.controller.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:53:52 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\control.controller.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:58:13 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\parameters\parameter.service.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 14:59:17 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\preset\preset.service.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 15:28:40 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\routes\index.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode
+[INFO] 15:37:24 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\devices\devices.service.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3004 in development mode

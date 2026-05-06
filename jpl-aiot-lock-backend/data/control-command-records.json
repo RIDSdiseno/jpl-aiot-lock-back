@@ -1,0 +1,28 @@
+[
+  {
+    "id": "2d199942-2256-4c96-85eb-4eab1d49a52a",
+    "sortNo": 1,
+    "deviceId": "708049716934",
+    "commandContent": "Read communication parameters",
+    "commandType": "PARAMETER_READ",
+    "status": "EXECUTED",
+    "executionTime": "2026-05-06T18:59:20.224Z",
+    "responseContent": "OK",
+    "submittedReservedCommand": false,
+    "operator": "Mock operator",
+    "createdAt": "2026-05-06T17:59:20.227Z",
+    "updatedAt": "2026-05-06T17:59:20.227Z"
+  },
+  {
+    "id": "2123c9c9-927c-40d2-a041-d460e1d06e3a",
+    "sortNo": 2,
+    "deviceId": "553071206110",
+    "commandContent": "Sync NFC cards",
+    "commandType": "NFC_SYNC",
+    "status": "RESERVED",
+    "submittedReservedCommand": true,
+    "operator": "Mock operator",
+    "createdAt": "2026-05-06T18:59:20.227Z",
+    "updatedAt": "2026-05-06T18:59:20.227Z"
+  }
+]

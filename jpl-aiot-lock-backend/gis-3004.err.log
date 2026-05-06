@@ -1,0 +1,11 @@
+Error: Route.get() requires a callback function but got a [object Undefined]
+    at Route.<computed> [as get] (C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\node_modules\express\lib\router\route.js:216:15)
+    at router.proto.<computed> [as get] (C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\node_modules\express\lib\router\index.js:521:19)
+    at Object.<anonymous> (C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\control\control.routes.ts:18:8)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1761:14)
+    at Module._compile (C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\node_modules\source-map-support\source-map-support.js:568:25)
+    at Module.m._compile (C:\Users\JUAN\AppData\Local\Temp\ts-node-dev-hook-9705173267540981.js:69:33)
+    at node:internal/modules/cjs/loader:1893:10
+    at require.extensions..jsx.require.extensions..js (C:\Users\JUAN\AppData\Local\Temp\ts-node-dev-hook-9705173267540981.js:114:20)
+    at require.extensions.<computed> (C:\Users\JUAN\AppData\Local\Temp\ts-node-dev-hook-9705173267540981.js:71:20)
+    at Object.nodeDevHook [as .ts] (C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\node_modules\ts-node-dev\lib\hook.js:63:13)
