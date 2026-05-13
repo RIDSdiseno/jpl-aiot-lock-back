@@ -17,6 +17,9 @@ export function errorMiddleware(
 
   return res.status(statusCode).json({
     ok: false,
+    status: "FAILED",
+    code: appError.code ?? "INTERNAL_SERVER_ERROR",
+    message: error.message || "Internal server error",
     error: {
       code: appError.code ?? "INTERNAL_SERVER_ERROR",
       message: error.message || "Internal server error",

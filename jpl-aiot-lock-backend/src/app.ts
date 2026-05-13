@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import { env } from "./config/env";
 import { errorMiddleware } from "./middlewares/error.middleware";
+import parameterRoutes from "./modules/control/parameters/parameter.routes";
 import apiRoutes from "./routes";
 import monitoringRoutes from "./routes/monitoring.routes";
 
@@ -27,6 +28,7 @@ app.use("/api/monitoring", (req, _res, next) => {
 app.use("/api/monitoring", monitoringRoutes);
 console.log("[MONITORING] routes mounted at /api/monitoring");
 
+app.use("/api/control/parameters", parameterRoutes);
 app.use("/api", apiRoutes);
 
 app.use(errorMiddleware);

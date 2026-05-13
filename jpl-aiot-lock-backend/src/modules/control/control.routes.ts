@@ -9,6 +9,7 @@ import presetRoutes from "./preset/preset.routes";
 const router = Router();
 
 router.get("/devices", controller.getDevices);
+router.use("/parameters", parameterRoutes);
 router.use("/devices/:deviceId/nfc", nfcRoutes);
 router.use("/devices/:deviceId/dynamic-password", passwordRoutes);
 router.use("/devices/:deviceId/parameters", parameterRoutes);

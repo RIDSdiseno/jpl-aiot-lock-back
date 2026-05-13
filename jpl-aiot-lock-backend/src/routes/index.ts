@@ -14,6 +14,7 @@ import gisRoutes from "../modules/gis/gis.routes";
 import historyRoutes from "../modules/history/history.routes";
 import locksRoutes from "../modules/locks/locks.routes";
 import maintainRoutes from "../modules/maintain/maintain.routes";
+import reportRoutes from "../modules/reports/report.routes";
 import userCenterRoutes from "../modules/user-center/userCenter.routes";
 import usersRoutes from "../modules/users/users.routes";
 
@@ -41,6 +42,7 @@ router.use("/gis", gisRoutes);
 router.use("/alerts", alertsRoutes);
 router.use("/history", historyRoutes);
 router.use("/maintain", maintainRoutes);
+router.use(reportRoutes);
 router.use("/user-center", userCenterRoutes);
 router.use("/audit", auditRoutes);
 

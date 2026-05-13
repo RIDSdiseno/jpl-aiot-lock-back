@@ -59,9 +59,17 @@ export interface DeviceCommandRecord {
 export interface DeviceParameterField {
   key: string;
   label: string;
-  value?: string;
+  value?: string | number | boolean | null;
+  type?: "text" | "number" | "boolean" | "select" | "password" | "datetime" | "readonly";
+  unit?: string;
+  options?: Array<{ label: string; value: string | number | boolean }>;
+  editable?: boolean;
+  description?: string;
   placeholder?: string;
   sensitive?: boolean;
+  min?: number;
+  max?: number;
+  group?: string;
   category: string;
 }
 

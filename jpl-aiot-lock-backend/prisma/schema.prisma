@@ -659,16 +659,81 @@ model DeviceCommand {
 }
 
 model DeviceEvent {
-  id         String   @id @default(uuid())
-  deviceId   String
-  type       String
-  message    String?
-  rawPayload Json?
-  createdAt  DateTime @default(now())
+  id              String   @id @default(uuid())
+  deviceId        String
+  deviceName      String?
+  productModel    String?
+  productType     String?
+  gpsTime         DateTime?
+  batteryLevel    Int?
+  eventName       String?
+  eventType       String   @default("UNKNOWN")
+  lockStatus      String?
+  dataType        String?
+  latitude        Float?
+  longitude       Float?
+  eventImageUrl   String?
+  source          String?
+  operatingInfo   String?
+  description     String?
+  rawPayload      Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([deviceId])
-  @@index([type])
-  @@index([createdAt])
+  @@index([gpsTime])
+  @@index([eventType])
+  @@index([dataType])
+  @@index([productModel])
+}
+
+model DeviceAlarmEvent {
+  id              String   @id @default(cuid())
+  eventId         String?
+  deviceId        String
+  deviceName      String?
+  productModel    String?
+  gpsTime         DateTime?
+  batteryLevel    Int?
+  alarmType       String
+  alarmLevel      String
+  operatingInfo   String?
+  lockStatus      String?
+  dataType        String?
+  latitude        Float?
+  longitude       Float?
+  eventImageUrl   String?
+  description     String?
+  status          String   @default("NEW")
+  rawPayload      Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([deviceId])
+  @@index([gpsTime])
+  @@index([alarmType])
+  @@index([alarmLevel])
+  @@index([status])
+}
+
+model DevicePushEvent {
+  id                String   @id @default(cuid())
+  deviceId          String?
+  affiliatedCompany String?
+  pushType          String
+  sendingEventType  String
+  sendTo            String?
+  sendingStatus     String
+  sendingContent    String?
+  sendTime          DateTime?
+  errorMessage      String?
+  rawPayload        Json?
+  createdAt         DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([pushType])
+  @@index([sendingStatus])
+  @@index([sendTime])
 }
 
 model GeoFence {
@@ -742,17 +807,53 @@ model DeviceNfcCard {
 }
 
 model DeviceParameterSnapshot {
-  id        String   @id @default(uuid())
-  deviceId  String
-  category  String
-  parameters Json
-  readById  String?
-  readAt    DateTime @default(now())
-  rawPayload Json?
+  id          String   @id @default(uuid())
+  deviceId    String
+  category    String   @default("all")
+  source      String   @default("READ")
+  parameters  Json
+  readById    String?
+  createdById String?
+  readAt      DateTime @default(now())
+  rawPayload  Json?
+  createdAt   DateTime @default(now())
 
   @@index([deviceId])
   @@index([category])
   @@index([readAt])
+}
+
+model DeviceParameterCommand {
+  id               String    @id @default(uuid())
+  deviceId         String
+  commandType      String
+  status           String    @default("PENDING")
+  requestedPayload Json?
+  responsePayload  Json?
+  errorMessage     String?
+  requestedById    String?
+  requestedAt      DateTime  @default(now())
+  completedAt      DateTime?
+  reservedFor       DateTime?
+
+  @@index([deviceId])
+  @@index([commandType])
+  @@index([status])
+  @@index([requestedAt])
+}
+
+model DeviceParameterAuditLog {
+  id        String   @id @default(uuid())
+  deviceId  String
+  commandId String?
+  action    String
+  details   Json?
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([commandId])
+  @@index([createdAt])
 }
 
 model DeviceParameterChangeLog {

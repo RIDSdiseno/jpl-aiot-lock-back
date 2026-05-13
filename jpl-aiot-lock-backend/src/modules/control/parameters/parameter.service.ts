@@ -1,110 +1,326 @@
-import { randomUUID } from "crypto";
-import type { DeviceCommandRecord, DeviceParameterField } from "../control.types";
 import { createCommandRecord } from "../commands/command-record.service";
 import { auditControlAction } from "../shared/control-audit.service";
-import { findControlDevice } from "../shared/control-device-selector.service";
-import type { DeviceParameterSnapshot } from "./parameter.types";
-
-const communicationFields: DeviceParameterField[] = [
-  { key: "bluetoothAppFixedOperationPassword", label: "Bluetooth APP fixed operation password", value: "123456", category: "ble", sensitive: true },
-  { key: "bluetoothDeviceName", label: "Bluetooth device name", value: "JPL-G300N", category: "ble" },
-  { key: "primaryServerAddress", label: "Primary server address", value: "iot.jpl.cl", category: "communication" },
-  { key: "primaryServerTcpPort", label: "Primary server TCP port", value: "1883", category: "communication" },
-  { key: "backupServerAddress", label: "Backup server address", value: "", category: "communication" },
-  { key: "backupServerTcpPort", label: "Backup server TCP port", value: "", category: "communication" },
-  { key: "apnNameSim1", label: "APN Name (sim1)", value: "m2m.claro.cl", category: "communication" },
-  { key: "apnUsernameSim1", label: "APN Username (sim1)", value: "", category: "communication" },
-  { key: "apnPasswordSim1", label: "APN Password (sim1)", value: "", category: "communication", sensitive: true },
-];
-
-const parametersByDevice = new Map<string, DeviceParameterField[]>([["708049716934", communicationFields]]);
-const snapshotsByDevice = new Map<string, DeviceParameterSnapshot[]>();
+import { categories, getDefaultParameters, parameterSchema, sanitizeUpdatesForLog, validateParameterUpdates } from "./parameter.schema";
+import {
+  completeParameterCommand,
+  createParameterCommand,
+  findParameterDevice,
+  getLatestSnapshot,
+  listParameterReservations,
+  listParameterDevices,
+  listParameterHistory,
+  saveSnapshot,
+  saveParameterAuditLog,
+} from "./parameter.repository";
+import * as gateway from "./parameterGateway.service";
+import { ParameterError, type ParameterDeviceFilters, type ParameterField, type ParameterUpdateInput } from "./parameter.types";
 
 function assertDevice(deviceId: string) {
-  if (!findControlDevice(deviceId)) {
-    const error = new Error("Device not found");
-    Object.assign(error, { statusCode: 404, code: "CONTROL_DEVICE_NOT_FOUND" });
+  const device = findParameterDevice(deviceId);
+  if (!device) throw new ParameterError("DEVICE_NOT_FOUND", "Device not found", 404);
+  return device;
+}
+
+function normalizeLegacyFields(fields: ParameterField[]): ParameterUpdateInput[] {
+  return fields.map((field) => ({ key: field.key, value: field.value ?? null }));
+}
+
+export function getSchema() {
+  console.log("[PARAMETER][SCHEMA_LOAD]");
+  return { categories, parameters: parameterSchema };
+}
+
+export function getDevices(filters: ParameterDeviceFilters = {}) {
+  console.log("[PARAMETER][DEVICES_LIST]", filters);
+  return listParameterDevices(filters);
+}
+
+export async function getLatest(deviceId: string) {
+  const device = assertDevice(deviceId);
+  console.log("[PARAMETER][LATEST_REQUEST]", { deviceId });
+  const latest = await getLatestSnapshot(deviceId);
+  return {
+    deviceId,
+    readAt: latest?.readAt ?? null,
+    parameters: latest?.parameters ?? getDefaultParameters(device.imei),
+    lastSnapshot: latest,
+  };
+}
+
+export async function getParameters(deviceId: string) {
+  const latest = await getLatest(deviceId);
+  return {
+    deviceId,
+    readTime: latest.readAt,
+    fields: Object.values(latest.parameters).flat(),
+  };
+}
+
+export async function readParameters(deviceId: string, userId?: string) {
+  const device = assertDevice(deviceId);
+  console.log("[PARAMETER][READ_REQUEST]", { deviceId, requestedBy: userId });
+  const command = await createParameterCommand({ deviceId, commandType: "READ_PARAMETERS", requestedById: userId });
+
+  if (device.status === "OFFLINE") {
+    await completeParameterCommand(command.id, deviceId, "OFFLINE", undefined, "Device is offline");
+    await saveParameterAuditLog({ deviceId, commandId: command.id, action: "READ", details: { status: "OFFLINE" }, userId });
+    createCommandRecord({
+      deviceId,
+      commandType: "READ_PARAMETERS",
+      commandContent: "Read device parameters",
+      status: "FAILED",
+      progress: 100,
+      payload: { commandId: command.id },
+      response: { status: "OFFLINE" },
+      operatorId: userId,
+    });
+    console.log("[PARAMETER][READ_OFFLINE]", { deviceId });
+    return {
+      ok: false,
+      status: "OFFLINE",
+      message: "Device is offline. Showing last saved parameters.",
+      lastSnapshot: await getLatestSnapshot(deviceId),
+    };
+  }
+
+  try {
+    const result = await gateway.readDeviceParameters(deviceId);
+    if (result.status === "PENDING") {
+      await completeParameterCommand(command.id, deviceId, "PENDING", { reason: "DEVICE_SLEEP" });
+      createCommandRecord({
+        deviceId,
+        commandType: "READ_PARAMETERS",
+        commandContent: "Read device parameters",
+        status: "PENDING",
+        progress: 10,
+        payload: { commandId: command.id },
+        response: { status: "PENDING", reason: "DEVICE_SLEEP" },
+        operatorId: userId,
+      });
+      console.log("[PARAMETER][READ_REQUEST]", { deviceId, commandId: command.id, status: "PENDING" });
+      return {
+        ok: true,
+        status: "PENDING",
+        message: "Command sent and waiting for device response.",
+        data: { commandId: command.id },
+        commandId: command.id,
+        deviceId,
+        fields: Object.values((await getLatest(deviceId)).parameters).flat(),
+      };
+    }
+    const snapshot = await saveSnapshot({ deviceId, source: "READ", parameters: result.parameters, createdById: userId, readAt: result.readAt });
+    await completeParameterCommand(command.id, deviceId, "SUCCESS", { readAt: result.readAt });
+    await saveParameterAuditLog({ deviceId, commandId: command.id, action: "READ", details: { status: "SUCCESS", readAt: result.readAt }, userId });
+    createCommandRecord({
+      deviceId,
+      commandType: "READ_PARAMETERS",
+      commandContent: "Read device parameters",
+      status: "SUCCESS",
+      progress: 100,
+      payload: { categories: Object.keys(result.parameters) },
+      response: { readAt: result.readAt },
+      operatorId: userId,
+    });
+    auditControlAction({ action: "PARAMETER_READ", deviceId, commandId: command.id, userId });
+    console.log("[PARAMETER][READ_SUCCESS]", { deviceId, readAt: result.readAt });
+    return {
+      ok: true,
+      status: "SUCCESS",
+      message: "Device parameters read successfully",
+      data: {
+        deviceId,
+        readAt: snapshot.readAt,
+        parameters: snapshot.parameters,
+      },
+      deviceId,
+      readTime: snapshot.readAt,
+      fields: Object.values(snapshot.parameters).flat(),
+    };
+  } catch (error) {
+    const parameterError = error as ParameterError;
+    await completeParameterCommand(command.id, deviceId, "FAILED", undefined, parameterError.message);
+    createCommandRecord({
+      deviceId,
+      commandType: "READ_PARAMETERS",
+      commandContent: "Read device parameters",
+      status: "FAILED",
+      progress: 100,
+      payload: { commandId: command.id },
+      response: { errorCode: parameterError.code ?? "IOT_GATEWAY_ERROR" },
+      operatorId: userId,
+    });
+    console.log("[PARAMETER][READ_FAILED]", { deviceId, code: parameterError.code ?? "IOT_GATEWAY_ERROR" });
     throw error;
   }
 }
 
-export function getParameters(deviceId: string) {
-  assertDevice(deviceId);
-  return {
-    deviceId,
-    readTime: snapshotsByDevice.get(deviceId)?.[0]?.readAt ?? null,
-    fields: parametersByDevice.get(deviceId) ?? communicationFields.map((field) => ({ ...field, value: "" })),
-  };
-}
+export async function updateParameters(deviceId: string, updatesOrFields: ParameterUpdateInput[] | ParameterField[], userId?: string) {
+  const device = assertDevice(deviceId);
+  const updates = normalizeLegacyFields(updatesOrFields as ParameterField[]);
+  console.log("[PARAMETER][UPDATE_REQUEST]", { deviceId, parameters: sanitizeUpdatesForLog(updates) });
 
-export function readParameters(deviceId: string, userId?: string) {
-  assertDevice(deviceId);
-  const readAt = new Date().toISOString();
-  const fields = getParameters(deviceId).fields;
-  const snapshot: DeviceParameterSnapshot = {
-    id: randomUUID(),
-    deviceId,
-    category: "communication",
-    parameters: fields,
-    readAt,
-    rawPayload: { provider: "mock" },
-  };
-  snapshotsByDevice.set(deviceId, [snapshot, ...(snapshotsByDevice.get(deviceId) ?? [])]);
-  createCommandRecord({
-    deviceId,
-    commandType: "PARAMETER_READ",
-    commandContent: "Read device parameters",
-    status: "SUCCESS",
-    progress: 100,
-    payload: { categories: [...new Set(fields.map((field) => field.category))] },
-    response: { readAt },
-    operatorId: userId,
-  });
-  auditControlAction({ action: "PARAMETER_READ", deviceId, userId });
-  return { deviceId, readTime: readAt, fields };
-}
-
-export function updateParameters(deviceId: string, fields: DeviceParameterField[], userId?: string) {
-  assertDevice(deviceId);
-  for (const field of fields) {
-    if (field.value && field.value.length > 120) {
-      const error = new Error(`Parameter ${field.key} is too long`);
-      Object.assign(error, { statusCode: 400, code: "CONTROL_PARAMETER_TOO_LONG" });
-      throw error;
-    }
+  if (!updates.length) {
+    console.log("[PARAMETER][VALIDATION_ERROR]", { deviceId, code: "INVALID_PARAMETER_VALUE", message: "No modified parameters provided." });
+    await saveParameterAuditLog({ deviceId, action: "VALIDATION_ERROR", details: { code: "INVALID_PARAMETER_VALUE", message: "No modified parameters provided." }, userId });
+    throw new ParameterError("INVALID_PARAMETER_VALUE", "No modified parameters provided.", 400);
   }
-  parametersByDevice.set(deviceId, fields);
-  createCommandRecord({
+
+  const validations = validateParameterUpdates(updates);
+  const invalid = validations.find((item) => !item.ok);
+  if (invalid && !invalid.ok) {
+    console.log("[PARAMETER][VALIDATION_ERROR]", { deviceId, code: invalid.code, message: invalid.message, parameters: sanitizeUpdatesForLog(updates) });
+    await saveParameterAuditLog({ deviceId, action: "VALIDATION_ERROR", details: { code: invalid.code, message: invalid.message, parameters: sanitizeUpdatesForLog(updates) }, userId });
+    throw new ParameterError(invalid.code as any, invalid.message, 400);
+  }
+
+  if (device.status === "OFFLINE") {
+    const command = await createParameterCommand({
+      deviceId,
+      commandType: "UPDATE_PARAMETERS",
+      status: "OFFLINE",
+      requestedPayload: { parameters: sanitizeUpdatesForLog(updates) },
+      requestedById: userId,
+    });
+    await saveParameterAuditLog({ deviceId, commandId: command.id, action: "UPDATE", details: { status: "OFFLINE", parameters: sanitizeUpdatesForLog(updates) }, userId });
+    console.log("[PARAMETER][UPDATE_FAILED]", { deviceId, commandId: command.id, code: "DEVICE_OFFLINE" });
+    return {
+      ok: false,
+      status: "OFFLINE",
+      message: "Device is offline. Showing last saved parameters.",
+      commandId: command.id,
+      lastSnapshot: await getLatestSnapshot(deviceId),
+    };
+  }
+
+  const command = await createParameterCommand({
     deviceId,
-    commandType: "PARAMETER_UPDATE",
-    commandContent: "Parameter update",
-    status: "SUCCESS",
-    progress: 100,
-    payload: { fields },
-    response: { updated: true },
-    operatorId: userId,
+    commandType: "UPDATE_PARAMETERS",
+    requestedPayload: { parameters: sanitizeUpdatesForLog(updates) },
+    requestedById: userId,
   });
-  auditControlAction({ action: "PARAMETER_UPDATE", deviceId, userId, metadata: { changedKeys: fields.map((field) => field.key) } });
-  return { deviceId, updated: true, fields };
+
+  try {
+    const latest = await getLatest(deviceId);
+    const result = await gateway.updateDeviceParameters(deviceId, latest.parameters, updates);
+    if (result.status === "PENDING" || !result.parameters) {
+      await completeParameterCommand(command.id, deviceId, "PENDING", { queued: true });
+      createCommandRecord({
+        deviceId,
+        commandType: "UPDATE_PARAMETERS",
+        commandContent: "Parameter update",
+        status: "PENDING",
+        progress: 10,
+        payload: { parameters: sanitizeUpdatesForLog(updates) },
+        response: { status: "PENDING" },
+        operatorId: userId,
+      });
+      console.log("[PARAMETER][UPDATE_PENDING]", { deviceId, commandId: command.id });
+      return {
+        ok: true,
+        status: "PENDING",
+        message: "Command sent and waiting for device response.",
+        data: { commandId: command.id },
+        commandId: command.id,
+      };
+    }
+    await saveSnapshot({ deviceId, source: "UPDATE_RESULT", parameters: result.parameters, createdById: userId, readAt: result.readAt });
+    await completeParameterCommand(command.id, deviceId, "SUCCESS", { updatedKeys: updates.map((item) => item.key) });
+    await saveParameterAuditLog({ deviceId, commandId: command.id, action: "UPDATE", details: { status: "SUCCESS", parameters: sanitizeUpdatesForLog(updates) }, userId });
+    createCommandRecord({
+      deviceId,
+      commandType: "UPDATE_PARAMETERS",
+      commandContent: "Parameter update",
+      status: "SUCCESS",
+      progress: 100,
+      payload: { parameters: sanitizeUpdatesForLog(updates) },
+      response: { updated: true },
+      operatorId: userId,
+    });
+    auditControlAction({ action: "PARAMETER_UPDATE", deviceId, commandId: command.id, userId, metadata: { changedKeys: updates.map((field) => field.key) } });
+    console.log("[PARAMETER][UPDATE_SUCCESS]", { deviceId, commandId: command.id });
+    return {
+      ok: true,
+      status: "SUCCESS",
+      message: "Device parameters updated successfully",
+      commandId: command.id,
+      deviceId,
+      updated: true,
+      fields: Object.values(result.parameters).flat(),
+    };
+  } catch (error) {
+    const parameterError = error as ParameterError;
+    const status = parameterError.code === "DEVICE_OFFLINE" ? "OFFLINE" : "FAILED";
+    await completeParameterCommand(command.id, deviceId, status, undefined, parameterError.message);
+    console.log("[PARAMETER][UPDATE_FAILED]", { deviceId, commandId: command.id, code: parameterError.code ?? "IOT_GATEWAY_ERROR" });
+    if (status === "OFFLINE") {
+      createCommandRecord({
+        deviceId,
+        commandType: "UPDATE_PARAMETERS",
+        commandContent: "Parameter update",
+        status: "FAILED",
+        progress: 100,
+        payload: { commandId: command.id, parameters: sanitizeUpdatesForLog(updates) },
+        response: { status: "OFFLINE" },
+        operatorId: userId,
+      });
+      return {
+        ok: false,
+        status: "OFFLINE",
+        message: "Device is offline. Showing last saved parameters.",
+        commandId: command.id,
+        lastSnapshot: await getLatestSnapshot(deviceId),
+      };
+    }
+    createCommandRecord({
+      deviceId,
+      commandType: "UPDATE_PARAMETERS",
+      commandContent: "Parameter update",
+      status: "FAILED",
+      progress: 100,
+      payload: { commandId: command.id, parameters: sanitizeUpdatesForLog(updates) },
+      response: { errorCode: parameterError.code ?? "IOT_GATEWAY_ERROR" },
+      operatorId: userId,
+    });
+    throw error;
+  }
 }
 
-export function reserveParameterCommand(deviceId: string, userId?: string): DeviceCommandRecord {
+export async function reserveParameterCommand(deviceId: string, userId?: string) {
   assertDevice(deviceId);
-  const command: DeviceCommandRecord = createCommandRecord({
+  const parameterCommand = await createParameterCommand({
     deviceId,
-    commandType: "PARAMETER_UPDATE",
+    commandType: "RESERVED_UPDATE_PARAMETERS",
+    status: "RESERVED",
+    requestedPayload: { parameters: [] },
+    requestedById: userId,
+    reservedFor: new Date(Date.now() + 3600_000).toISOString(),
+  });
+  const commandRecord = createCommandRecord({
+    deviceId,
+    commandType: "RESERVED_UPDATE_PARAMETERS",
     commandContent: "Reservation CMD",
     status: "RESERVED",
     progress: 0,
-    payload: { executeWhenOnline: true },
+    payload: { parameterCommandId: parameterCommand.id, executeWhenOnline: true },
     submittedReservedCommand: true,
     operatorId: userId,
   });
-  auditControlAction({ action: "PARAMETER_RESERVE_COMMAND", deviceId, commandId: command.id, userId });
-  return command;
+  auditControlAction({ action: "PARAMETER_RESERVE_COMMAND", deviceId, commandId: parameterCommand.id, userId });
+  await saveParameterAuditLog({ deviceId, commandId: parameterCommand.id, action: "RESERVE", details: { status: "RESERVED" }, userId });
+  console.log("[PARAMETER][RESERVATION_CREATED]", { deviceId, commandId: parameterCommand.id });
+  return commandRecord;
 }
 
-export function getSnapshots(deviceId: string) {
+export async function getHistory(deviceId: string) {
   assertDevice(deviceId);
-  return snapshotsByDevice.get(deviceId) ?? [];
+  return listParameterHistory(deviceId);
+}
+
+export async function getSnapshots(deviceId: string) {
+  return (await getHistory(deviceId)).snapshots;
+}
+
+export async function getReservations(deviceId: string) {
+  assertDevice(deviceId);
+  return listParameterReservations(deviceId);
 }

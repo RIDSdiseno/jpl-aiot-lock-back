@@ -122,3 +122,538 @@ prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "pub
 prisma:query COMMIT
 prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND "public"."User"."deletedAt" IS NULL) LIMIT $2 OFFSET $3
 prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+[INFO] 16:44:55 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\app.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3002 in development mode
+prisma:info Starting a postgresql pool with 5 connections.
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."email" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+prisma:query BEGIN
+prisma:query UPDATE "public"."User" SET "lastLoginAt" = $1, "updatedAt" = $2 WHERE ("public"."User"."id" = $3 AND 1=1) RETURNING "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt"
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+prisma:query COMMIT
+prisma:query BEGIN
+prisma:query SELECT "public"."User"."id" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."AuditLog" ("id","userId","action","entity","entityId","description","ipAddress","userAgent","createdAt") VALUES ($1,$2,CAST($3::text AS "public"."AuditAction"),$4,$5,$6,$7,$8,$9) RETURNING "public"."AuditLog"."id"
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE "public"."AuditLog"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query COMMIT
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND "public"."User"."deletedAt" IS NULL) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+[AUTH] bypass monitoring demo route: GET /api/monitoring/devices
+[AUTH] bypass monitoring demo route: GET /api/monitoring/geofences
+prisma:query 
+    CREATE TABLE IF NOT EXISTS "GeoFenceCenter" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "type" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+      "geometryJson" JSONB NOT NULL,
+      "rulesJson" JSONB NOT NULL DEFAULT '[]',
+      "centerLat" DOUBLE PRECISION,
+      "centerLng" DOUBLE PRECISION,
+      "radiusMeters" DOUBLE PRECISION,
+      "createdById" TEXT,
+      "updatedById" TEXT,
+      "deletedAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "FenceSendRecord" (
+      "id" TEXT PRIMARY KEY,
+      "geoFenceId" TEXT NOT NULL,
+      "deviceId" TEXT NOT NULL,
+      "deviceName" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "progress" INTEGER NOT NULL DEFAULT 0,
+      "polygonFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "circleFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "fenceRuleCount" INTEGER NOT NULL DEFAULT 0,
+      "commandPayloadJson" JSONB,
+      "responsePayloadJson" JSONB,
+      "errorMessage" TEXT,
+      "stoppedAt" TIMESTAMP(3),
+      "sentAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "DeviceFenceReadRecord" (
+      "id" TEXT PRIMARY KEY,
+      "deviceId" TEXT NOT NULL,
+      "queryType" TEXT NOT NULL,
+      "blockNumber" INTEGER NOT NULL DEFAULT 1,
+      "resultJson" JSONB,
+      "status" TEXT NOT NULL,
+      "errorMessage" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  
+prisma:error 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42601`. Message: `ERROR: cannot insert multiple commands into a prepared statement`
+prisma:query 
+    CREATE TABLE IF NOT EXISTS "GeoFenceCenter" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "type" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+      "geometryJson" JSONB NOT NULL,
+      "rulesJson" JSONB NOT NULL DEFAULT '[]',
+      "centerLat" DOUBLE PRECISION,
+      "centerLng" DOUBLE PRECISION,
+      "radiusMeters" DOUBLE PRECISION,
+      "createdById" TEXT,
+      "updatedById" TEXT,
+      "deletedAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "FenceSendRecord" (
+      "id" TEXT PRIMARY KEY,
+      "geoFenceId" TEXT NOT NULL,
+      "deviceId" TEXT NOT NULL,
+      "deviceName" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "progress" INTEGER NOT NULL DEFAULT 0,
+      "polygonFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "circleFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "fenceRuleCount" INTEGER NOT NULL DEFAULT 0,
+      "commandPayloadJson" JSONB,
+      "responsePayloadJson" JSONB,
+      "errorMessage" TEXT,
+      "stoppedAt" TIMESTAMP(3),
+      "sentAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "DeviceFenceReadRecord" (
+      "id" TEXT PRIMARY KEY,
+      "deviceId" TEXT NOT NULL,
+      "queryType" TEXT NOT NULL,
+      "blockNumber" INTEGER NOT NULL DEFAULT 1,
+      "resultJson" JSONB,
+      "status" TEXT NOT NULL,
+      "errorMessage" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  
+prisma:error 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42601`. Message: `ERROR: cannot insert multiple commands into a prepared statement`
+prisma:query 
+    CREATE TABLE IF NOT EXISTS "GeoFenceCenter" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "type" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+      "geometryJson" JSONB NOT NULL,
+      "rulesJson" JSONB NOT NULL DEFAULT '[]',
+      "centerLat" DOUBLE PRECISION,
+      "centerLng" DOUBLE PRECISION,
+      "radiusMeters" DOUBLE PRECISION,
+      "createdById" TEXT,
+      "updatedById" TEXT,
+      "deletedAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "FenceSendRecord" (
+      "id" TEXT PRIMARY KEY,
+      "geoFenceId" TEXT NOT NULL,
+      "deviceId" TEXT NOT NULL,
+      "deviceName" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "progress" INTEGER NOT NULL DEFAULT 0,
+      "polygonFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "circleFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "fenceRuleCount" INTEGER NOT NULL DEFAULT 0,
+      "commandPayloadJson" JSONB,
+      "responsePayloadJson" JSONB,
+      "errorMessage" TEXT,
+      "stoppedAt" TIMESTAMP(3),
+      "sentAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "DeviceFenceReadRecord" (
+      "id" TEXT PRIMARY KEY,
+      "deviceId" TEXT NOT NULL,
+      "queryType" TEXT NOT NULL,
+      "blockNumber" INTEGER NOT NULL DEFAULT 1,
+      "resultJson" JSONB,
+      "status" TEXT NOT NULL,
+      "errorMessage" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  
+prisma:error 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42601`. Message: `ERROR: cannot insert multiple commands into a prepared statement`
+prisma:query 
+    CREATE TABLE IF NOT EXISTS "GeoFenceCenter" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "type" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+      "geometryJson" JSONB NOT NULL,
+      "rulesJson" JSONB NOT NULL DEFAULT '[]',
+      "centerLat" DOUBLE PRECISION,
+      "centerLng" DOUBLE PRECISION,
+      "radiusMeters" DOUBLE PRECISION,
+      "createdById" TEXT,
+      "updatedById" TEXT,
+      "deletedAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "FenceSendRecord" (
+      "id" TEXT PRIMARY KEY,
+      "geoFenceId" TEXT NOT NULL,
+      "deviceId" TEXT NOT NULL,
+      "deviceName" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "progress" INTEGER NOT NULL DEFAULT 0,
+      "polygonFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "circleFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "fenceRuleCount" INTEGER NOT NULL DEFAULT 0,
+      "commandPayloadJson" JSONB,
+      "responsePayloadJson" JSONB,
+      "errorMessage" TEXT,
+      "stoppedAt" TIMESTAMP(3),
+      "sentAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "DeviceFenceReadRecord" (
+      "id" TEXT PRIMARY KEY,
+      "deviceId" TEXT NOT NULL,
+      "queryType" TEXT NOT NULL,
+      "blockNumber" INTEGER NOT NULL DEFAULT 1,
+      "resultJson" JSONB,
+      "status" TEXT NOT NULL,
+      "errorMessage" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  
+prisma:error 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42601`. Message: `ERROR: cannot insert multiple commands into a prepared statement`
+prisma:query SELECT "public"."FirmwareFile"."id", "public"."FirmwareFile"."deviceType", "public"."FirmwareFile"."productModel", "public"."FirmwareFile"."firmwareType", "public"."FirmwareFile"."versionName", "public"."FirmwareFile"."fileName", "public"."FirmwareFile"."originalFileName", "public"."FirmwareFile"."filePath", "public"."FirmwareFile"."fileSize", "public"."FirmwareFile"."mimeType", "public"."FirmwareFile"."checksum", "public"."FirmwareFile"."description", "public"."FirmwareFile"."uploadedById", "public"."FirmwareFile"."uploadedByName", "public"."FirmwareFile"."uploadedAt", "public"."FirmwareFile"."deletedAt" FROM "public"."FirmwareFile" WHERE "public"."FirmwareFile"."deletedAt" IS NULL ORDER BY "public"."FirmwareFile"."uploadedAt" DESC OFFSET $1
+prisma:query SELECT 1
+prisma:query SELECT "public"."Device"."id", "public"."Device"."providerId", "public"."Device"."deviceId", "public"."Device"."name", "public"."Device"."deviceType", "public"."Device"."productModel", "public"."Device"."companyId", "public"."Device"."imei", "public"."Device"."serialNumber", "public"."Device"."simNumber", "public"."Device"."iccid", "public"."Device"."firmwareVersion", "public"."Device"."hardwareVersion", "public"."Device"."bluetoothName", "public"."Device"."bleMac", "public"."Device"."nfcSupported", "public"."Device"."gpsSupported", "public"."Device"."loraSupported", "public"."Device"."remoteUnlockSupported", "public"."Device"."keyboardSupported", "public"."Device"."batteryLevel", "public"."Device"."signalStrength", "public"."Device"."lockStatus", "public"."Device"."shackleStatus", "public"."Device"."onlineStatus", "public"."Device"."lastConnectionAt", "public"."Device"."lastLocationLat", "public"."Device"."lastLocationLng", "public"."Device"."lastAddress", "public"."Device"."status", "public"."Device"."notes", "public"."Device"."metadata", "public"."Device"."createdAt", "public"."Device"."updatedAt", "public"."Device"."deletedAt" FROM "public"."Device" WHERE "public"."Device"."deletedAt" IS NULL ORDER BY "public"."Device"."createdAt" DESC OFFSET $1
+prisma:query SELECT "public"."OtaUpgradeRecord"."id", "public"."OtaUpgradeRecord"."deviceId", "public"."OtaUpgradeRecord"."deviceName", "public"."OtaUpgradeRecord"."productModel", "public"."OtaUpgradeRecord"."companyId", "public"."OtaUpgradeRecord"."firmwareFileId", "public"."OtaUpgradeRecord"."firmwareType", "public"."OtaUpgradeRecord"."fromVersion", "public"."OtaUpgradeRecord"."toVersion", "public"."OtaUpgradeRecord"."targetVersion", "public"."OtaUpgradeRecord"."status", "public"."OtaUpgradeRecord"."progress", "public"."OtaUpgradeRecord"."commandId", "public"."OtaUpgradeRecord"."commandPayloadJson", "public"."OtaUpgradeRecord"."responsePayloadJson", "public"."OtaUpgradeRecord"."errorMessage", "public"."OtaUpgradeRecord"."startedAt", "public"."OtaUpgradeRecord"."finishedAt", "public"."OtaUpgradeRecord"."verifiedAt", "public"."OtaUpgradeRecord"."createdById", "public"."OtaUpgradeRecord"."createdByName", "public"."OtaUpgradeRecord"."createdAt", "public"."OtaUpgradeRecord"."updatedAt" FROM "public"."OtaUpgradeRecord" WHERE 1=1 ORDER BY "public"."OtaUpgradeRecord"."createdAt" DESC LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Alert"."id", "public"."Alert"."lockId", "public"."Alert"."title", "public"."Alert"."message", "public"."Alert"."severity"::text, "public"."Alert"."status"::text, "public"."Alert"."resolvedAt", "public"."Alert"."acknowledgedAt", "public"."Alert"."rawPayload", "public"."Alert"."createdAt", "public"."Alert"."updatedAt" FROM "public"."Alert" WHERE 1=1 ORDER BY "public"."Alert"."createdAt" DESC LIMIT $1 OFFSET $2
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."email" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+prisma:query BEGIN
+prisma:query UPDATE "public"."User" SET "lastLoginAt" = $1, "updatedAt" = $2 WHERE ("public"."User"."id" = $3 AND 1=1) RETURNING "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt"
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+prisma:query COMMIT
+prisma:query BEGIN
+prisma:query SELECT "public"."User"."id" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."AuditLog" ("id","userId","action","entity","entityId","description","ipAddress","userAgent","createdAt") VALUES ($1,$2,CAST($3::text AS "public"."AuditAction"),$4,$5,$6,$7,$8,$9) RETURNING "public"."AuditLog"."id"
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE "public"."AuditLog"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query COMMIT
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND "public"."User"."deletedAt" IS NULL) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+[AUTH] bypass monitoring demo route: GET /api/monitoring/devices
+[AUTH] bypass monitoring demo route: GET /api/monitoring/geofences
+prisma:query SELECT "public"."Alert"."id", "public"."Alert"."lockId", "public"."Alert"."title", "public"."Alert"."message", "public"."Alert"."severity"::text, "public"."Alert"."status"::text, "public"."Alert"."resolvedAt", "public"."Alert"."acknowledgedAt", "public"."Alert"."rawPayload", "public"."Alert"."createdAt", "public"."Alert"."updatedAt" FROM "public"."Alert" WHERE 1=1 ORDER BY "public"."Alert"."createdAt" DESC LIMIT $1 OFFSET $2
+prisma:query SELECT 1
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE 1=1 ORDER BY "public"."AuditLog"."createdAt" DESC LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."id" IN ($1) OFFSET $2
+prisma:query SELECT 1
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."email" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+prisma:query BEGIN
+prisma:query UPDATE "public"."User" SET "lastLoginAt" = $1, "updatedAt" = $2 WHERE ("public"."User"."id" = $3 AND 1=1) RETURNING "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt"
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+prisma:query COMMIT
+prisma:query BEGIN
+prisma:query SELECT "public"."User"."id" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."AuditLog" ("id","userId","action","entity","entityId","description","ipAddress","userAgent","createdAt") VALUES ($1,$2,CAST($3::text AS "public"."AuditAction"),$4,$5,$6,$7,$8,$9) RETURNING "public"."AuditLog"."id"
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE "public"."AuditLog"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query COMMIT
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND "public"."User"."deletedAt" IS NULL) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+[AUTH] bypass monitoring demo route: GET /api/monitoring/devices
+[AUTH] bypass monitoring demo route: GET /api/monitoring/geofences
+prisma:query SELECT 1
+prisma:query SELECT "public"."Alert"."id", "public"."Alert"."lockId", "public"."Alert"."title", "public"."Alert"."message", "public"."Alert"."severity"::text, "public"."Alert"."status"::text, "public"."Alert"."resolvedAt", "public"."Alert"."acknowledgedAt", "public"."Alert"."rawPayload", "public"."Alert"."createdAt", "public"."Alert"."updatedAt" FROM "public"."Alert" WHERE 1=1 ORDER BY "public"."Alert"."createdAt" DESC LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE 1=1 ORDER BY "public"."AuditLog"."createdAt" DESC LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Device"."id", "public"."Device"."providerId", "public"."Device"."deviceId", "public"."Device"."name", "public"."Device"."deviceType", "public"."Device"."productModel", "public"."Device"."companyId", "public"."Device"."imei", "public"."Device"."serialNumber", "public"."Device"."simNumber", "public"."Device"."iccid", "public"."Device"."firmwareVersion", "public"."Device"."hardwareVersion", "public"."Device"."bluetoothName", "public"."Device"."bleMac", "public"."Device"."nfcSupported", "public"."Device"."gpsSupported", "public"."Device"."loraSupported", "public"."Device"."remoteUnlockSupported", "public"."Device"."keyboardSupported", "public"."Device"."batteryLevel", "public"."Device"."signalStrength", "public"."Device"."lockStatus", "public"."Device"."shackleStatus", "public"."Device"."onlineStatus", "public"."Device"."lastConnectionAt", "public"."Device"."lastLocationLat", "public"."Device"."lastLocationLng", "public"."Device"."lastAddress", "public"."Device"."status", "public"."Device"."notes", "public"."Device"."metadata", "public"."Device"."createdAt", "public"."Device"."updatedAt", "public"."Device"."deletedAt" FROM "public"."Device" WHERE "public"."Device"."deletedAt" IS NULL ORDER BY "public"."Device"."createdAt" DESC OFFSET $1
+prisma:query SELECT "public"."Company"."id", "public"."Company"."name", "public"."Company"."rut", "public"."Company"."email", "public"."Company"."phone", "public"."Company"."address", "public"."Company"."status"::text, "public"."Company"."createdAt", "public"."Company"."updatedAt", "public"."Company"."deletedAt" FROM "public"."Company" WHERE "public"."Company"."deletedAt" IS NULL ORDER BY "public"."Company"."createdAt" DESC OFFSET $1
+prisma:query SELECT "public"."Company"."id", "public"."Company"."name", "public"."Company"."rut", "public"."Company"."email", "public"."Company"."phone", "public"."Company"."address", "public"."Company"."status"::text, "public"."Company"."createdAt", "public"."Company"."updatedAt", "public"."Company"."deletedAt" FROM "public"."Company" WHERE "public"."Company"."id" IN ($1) OFFSET $2
+prisma:query SELECT COUNT(*) AS "_count$_all" FROM (SELECT "public"."Device"."id" FROM "public"."Device" WHERE ("public"."Device"."deletedAt" IS NULL AND "public"."Device"."onlineStatus" = $1) OFFSET $2) AS "sub"
+prisma:query SELECT COUNT(*) AS "_count$_all" FROM (SELECT "public"."Device"."id" FROM "public"."Device" WHERE ("public"."Device"."deletedAt" IS NULL AND "public"."Device"."onlineStatus" = $1) OFFSET $2) AS "sub"
+prisma:query SELECT COUNT(*) AS "_count$_all" FROM (SELECT "public"."Device"."id" FROM "public"."Device" WHERE ("public"."Device"."deletedAt" IS NULL AND "public"."Device"."onlineStatus" = $1) OFFSET $2) AS "sub"
+prisma:query SELECT COUNT(*) AS "_count$_all" FROM (SELECT "public"."Device"."id" FROM "public"."Device" WHERE "public"."Device"."deletedAt" IS NULL OFFSET $1) AS "sub"
+prisma:query SELECT "public"."Device"."id", "public"."Device"."providerId", "public"."Device"."deviceId", "public"."Device"."name", "public"."Device"."deviceType", "public"."Device"."productModel", "public"."Device"."companyId", "public"."Device"."imei", "public"."Device"."serialNumber", "public"."Device"."simNumber", "public"."Device"."iccid", "public"."Device"."firmwareVersion", "public"."Device"."hardwareVersion", "public"."Device"."bluetoothName", "public"."Device"."bleMac", "public"."Device"."nfcSupported", "public"."Device"."gpsSupported", "public"."Device"."loraSupported", "public"."Device"."remoteUnlockSupported", "public"."Device"."keyboardSupported", "public"."Device"."batteryLevel", "public"."Device"."signalStrength", "public"."Device"."lockStatus", "public"."Device"."shackleStatus", "public"."Device"."onlineStatus", "public"."Device"."lastConnectionAt", "public"."Device"."lastLocationLat", "public"."Device"."lastLocationLng", "public"."Device"."lastAddress", "public"."Device"."status", "public"."Device"."notes", "public"."Device"."metadata", "public"."Device"."createdAt", "public"."Device"."updatedAt", "public"."Device"."deletedAt" FROM "public"."Device" WHERE "public"."Device"."deletedAt" IS NULL ORDER BY "public"."Device"."createdAt" DESC OFFSET $1
+prisma:query SELECT "public"."Company"."id", "public"."Company"."name", "public"."Company"."rut", "public"."Company"."email", "public"."Company"."phone", "public"."Company"."address", "public"."Company"."status"::text, "public"."Company"."createdAt", "public"."Company"."updatedAt", "public"."Company"."deletedAt" FROM "public"."Company" WHERE "public"."Company"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."DeviceHistoryData"."id", "public"."DeviceHistoryData"."deviceId", "public"."DeviceHistoryData"."deviceName", "public"."DeviceHistoryData"."deviceType", "public"."DeviceHistoryData"."productModel", "public"."DeviceHistoryData"."companyId", "public"."DeviceHistoryData"."companyName", "public"."DeviceHistoryData"."reportType", "public"."DeviceHistoryData"."reportedAt", "public"."DeviceHistoryData"."longitude", "public"."DeviceHistoryData"."latitude", "public"."DeviceHistoryData"."address", "public"."DeviceHistoryData"."lockStatus", "public"."DeviceHistoryData"."shackleStatus", "public"."DeviceHistoryData"."batteryLevel", "public"."DeviceHistoryData"."signalStrength", "public"."DeviceHistoryData"."temperature", "public"."DeviceHistoryData"."speed", "public"."DeviceHistoryData"."firmwareVersion", "public"."DeviceHistoryData"."rawPayloadJson", "public"."DeviceHistoryData"."source", "public"."DeviceHistoryData"."createdAt" FROM "public"."DeviceHistoryData" WHERE 1=1 ORDER BY "public"."DeviceHistoryData"."reportedAt" DESC LIMIT $1 OFFSET $2
+prisma:query BEGIN
+prisma:query SELECT "public"."User"."id" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."AuditLog" ("id","userId","action","entity","description","newValues","createdAt") VALUES ($1,$2,CAST($3::text AS "public"."AuditAction"),$4,$5,$6,$7) RETURNING "public"."AuditLog"."id"
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE "public"."AuditLog"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query COMMIT
+prisma:query SELECT "public"."Company"."id", "public"."Company"."name", "public"."Company"."rut", "public"."Company"."email", "public"."Company"."phone", "public"."Company"."address", "public"."Company"."status"::text, "public"."Company"."createdAt", "public"."Company"."updatedAt", "public"."Company"."deletedAt" FROM "public"."Company" WHERE "public"."Company"."deletedAt" IS NULL ORDER BY "public"."Company"."createdAt" DESC OFFSET $1
+prisma:query BEGIN
+prisma:query SELECT "public"."User"."id" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."AuditLog" ("id","userId","action","entity","description","newValues","createdAt") VALUES ($1,$2,CAST($3::text AS "public"."AuditAction"),$4,$5,$6,$7) RETURNING "public"."AuditLog"."id"
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE "public"."AuditLog"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query COMMIT
+[AUTH] bypass monitoring demo route: GET /api/monitoring/devices
+[AUTH] bypass monitoring demo route: GET /api/monitoring/geofences
+prisma:query SELECT 1
+prisma:query 
+    CREATE TABLE IF NOT EXISTS "GeoFenceCenter" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "type" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+      "geometryJson" JSONB NOT NULL,
+      "rulesJson" JSONB NOT NULL DEFAULT '[]',
+      "centerLat" DOUBLE PRECISION,
+      "centerLng" DOUBLE PRECISION,
+      "radiusMeters" DOUBLE PRECISION,
+      "createdById" TEXT,
+      "updatedById" TEXT,
+      "deletedAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "FenceSendRecord" (
+      "id" TEXT PRIMARY KEY,
+      "geoFenceId" TEXT NOT NULL,
+      "deviceId" TEXT NOT NULL,
+      "deviceName" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "progress" INTEGER NOT NULL DEFAULT 0,
+      "polygonFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "circleFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "fenceRuleCount" INTEGER NOT NULL DEFAULT 0,
+      "commandPayloadJson" JSONB,
+      "responsePayloadJson" JSONB,
+      "errorMessage" TEXT,
+      "stoppedAt" TIMESTAMP(3),
+      "sentAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "DeviceFenceReadRecord" (
+      "id" TEXT PRIMARY KEY,
+      "deviceId" TEXT NOT NULL,
+      "queryType" TEXT NOT NULL,
+      "blockNumber" INTEGER NOT NULL DEFAULT 1,
+      "resultJson" JSONB,
+      "status" TEXT NOT NULL,
+      "errorMessage" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  
+prisma:error 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42601`. Message: `ERROR: cannot insert multiple commands into a prepared statement`
+prisma:query 
+    CREATE TABLE IF NOT EXISTS "GeoFenceCenter" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "type" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+      "geometryJson" JSONB NOT NULL,
+      "rulesJson" JSONB NOT NULL DEFAULT '[]',
+      "centerLat" DOUBLE PRECISION,
+      "centerLng" DOUBLE PRECISION,
+      "radiusMeters" DOUBLE PRECISION,
+      "createdById" TEXT,
+      "updatedById" TEXT,
+      "deletedAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "FenceSendRecord" (
+      "id" TEXT PRIMARY KEY,
+      "geoFenceId" TEXT NOT NULL,
+      "deviceId" TEXT NOT NULL,
+      "deviceName" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "progress" INTEGER NOT NULL DEFAULT 0,
+      "polygonFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "circleFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "fenceRuleCount" INTEGER NOT NULL DEFAULT 0,
+      "commandPayloadJson" JSONB,
+      "responsePayloadJson" JSONB,
+      "errorMessage" TEXT,
+      "stoppedAt" TIMESTAMP(3),
+      "sentAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "DeviceFenceReadRecord" (
+      "id" TEXT PRIMARY KEY,
+      "deviceId" TEXT NOT NULL,
+      "queryType" TEXT NOT NULL,
+      "blockNumber" INTEGER NOT NULL DEFAULT 1,
+      "resultJson" JSONB,
+      "status" TEXT NOT NULL,
+      "errorMessage" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  
+prisma:error 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42601`. Message: `ERROR: cannot insert multiple commands into a prepared statement`
+prisma:query 
+    CREATE TABLE IF NOT EXISTS "GeoFenceCenter" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "type" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+      "geometryJson" JSONB NOT NULL,
+      "rulesJson" JSONB NOT NULL DEFAULT '[]',
+      "centerLat" DOUBLE PRECISION,
+      "centerLng" DOUBLE PRECISION,
+      "radiusMeters" DOUBLE PRECISION,
+      "createdById" TEXT,
+      "updatedById" TEXT,
+      "deletedAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "FenceSendRecord" (
+      "id" TEXT PRIMARY KEY,
+      "geoFenceId" TEXT NOT NULL,
+      "deviceId" TEXT NOT NULL,
+      "deviceName" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "progress" INTEGER NOT NULL DEFAULT 0,
+      "polygonFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "circleFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "fenceRuleCount" INTEGER NOT NULL DEFAULT 0,
+      "commandPayloadJson" JSONB,
+      "responsePayloadJson" JSONB,
+      "errorMessage" TEXT,
+      "stoppedAt" TIMESTAMP(3),
+      "sentAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "DeviceFenceReadRecord" (
+      "id" TEXT PRIMARY KEY,
+      "deviceId" TEXT NOT NULL,
+      "queryType" TEXT NOT NULL,
+      "blockNumber" INTEGER NOT NULL DEFAULT 1,
+      "resultJson" JSONB,
+      "status" TEXT NOT NULL,
+      "errorMessage" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  
+prisma:error 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42601`. Message: `ERROR: cannot insert multiple commands into a prepared statement`
+prisma:query 
+    CREATE TABLE IF NOT EXISTS "GeoFenceCenter" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "type" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+      "geometryJson" JSONB NOT NULL,
+      "rulesJson" JSONB NOT NULL DEFAULT '[]',
+      "centerLat" DOUBLE PRECISION,
+      "centerLng" DOUBLE PRECISION,
+      "radiusMeters" DOUBLE PRECISION,
+      "createdById" TEXT,
+      "updatedById" TEXT,
+      "deletedAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "FenceSendRecord" (
+      "id" TEXT PRIMARY KEY,
+      "geoFenceId" TEXT NOT NULL,
+      "deviceId" TEXT NOT NULL,
+      "deviceName" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "progress" INTEGER NOT NULL DEFAULT 0,
+      "polygonFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "circleFenceCount" INTEGER NOT NULL DEFAULT 0,
+      "fenceRuleCount" INTEGER NOT NULL DEFAULT 0,
+      "commandPayloadJson" JSONB,
+      "responsePayloadJson" JSONB,
+      "errorMessage" TEXT,
+      "stoppedAt" TIMESTAMP(3),
+      "sentAt" TIMESTAMP(3),
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "DeviceFenceReadRecord" (
+      "id" TEXT PRIMARY KEY,
+      "deviceId" TEXT NOT NULL,
+      "queryType" TEXT NOT NULL,
+      "blockNumber" INTEGER NOT NULL DEFAULT 1,
+      "resultJson" JSONB,
+      "status" TEXT NOT NULL,
+      "errorMessage" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  
+prisma:error 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42601`. Message: `ERROR: cannot insert multiple commands into a prepared statement`
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE 1=1 ORDER BY "public"."AuditLog"."createdAt" DESC LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Device"."id", "public"."Device"."providerId", "public"."Device"."deviceId", "public"."Device"."name", "public"."Device"."deviceType", "public"."Device"."productModel", "public"."Device"."companyId", "public"."Device"."imei", "public"."Device"."serialNumber", "public"."Device"."simNumber", "public"."Device"."iccid", "public"."Device"."firmwareVersion", "public"."Device"."hardwareVersion", "public"."Device"."bluetoothName", "public"."Device"."bleMac", "public"."Device"."nfcSupported", "public"."Device"."gpsSupported", "public"."Device"."loraSupported", "public"."Device"."remoteUnlockSupported", "public"."Device"."keyboardSupported", "public"."Device"."batteryLevel", "public"."Device"."signalStrength", "public"."Device"."lockStatus", "public"."Device"."shackleStatus", "public"."Device"."onlineStatus", "public"."Device"."lastConnectionAt", "public"."Device"."lastLocationLat", "public"."Device"."lastLocationLng", "public"."Device"."lastAddress", "public"."Device"."status", "public"."Device"."notes", "public"."Device"."metadata", "public"."Device"."createdAt", "public"."Device"."updatedAt", "public"."Device"."deletedAt" FROM "public"."Device" WHERE "public"."Device"."deletedAt" IS NULL ORDER BY "public"."Device"."createdAt" DESC OFFSET $1
+prisma:query SELECT "public"."Company"."id", "public"."Company"."name", "public"."Company"."rut", "public"."Company"."email", "public"."Company"."phone", "public"."Company"."address", "public"."Company"."status"::text, "public"."Company"."createdAt", "public"."Company"."updatedAt", "public"."Company"."deletedAt" FROM "public"."Company" WHERE "public"."Company"."id" IN ($1) OFFSET $2
+prisma:query SELECT 1
+prisma:query SELECT "public"."FirmwareFile"."id", "public"."FirmwareFile"."deviceType", "public"."FirmwareFile"."productModel", "public"."FirmwareFile"."firmwareType", "public"."FirmwareFile"."versionName", "public"."FirmwareFile"."fileName", "public"."FirmwareFile"."originalFileName", "public"."FirmwareFile"."filePath", "public"."FirmwareFile"."fileSize", "public"."FirmwareFile"."mimeType", "public"."FirmwareFile"."checksum", "public"."FirmwareFile"."description", "public"."FirmwareFile"."uploadedById", "public"."FirmwareFile"."uploadedByName", "public"."FirmwareFile"."uploadedAt", "public"."FirmwareFile"."deletedAt" FROM "public"."FirmwareFile" WHERE "public"."FirmwareFile"."deletedAt" IS NULL ORDER BY "public"."FirmwareFile"."uploadedAt" DESC OFFSET $1
+prisma:query SELECT "public"."OtaUpgradeRecord"."id", "public"."OtaUpgradeRecord"."deviceId", "public"."OtaUpgradeRecord"."deviceName", "public"."OtaUpgradeRecord"."productModel", "public"."OtaUpgradeRecord"."companyId", "public"."OtaUpgradeRecord"."firmwareFileId", "public"."OtaUpgradeRecord"."firmwareType", "public"."OtaUpgradeRecord"."fromVersion", "public"."OtaUpgradeRecord"."toVersion", "public"."OtaUpgradeRecord"."targetVersion", "public"."OtaUpgradeRecord"."status", "public"."OtaUpgradeRecord"."progress", "public"."OtaUpgradeRecord"."commandId", "public"."OtaUpgradeRecord"."commandPayloadJson", "public"."OtaUpgradeRecord"."responsePayloadJson", "public"."OtaUpgradeRecord"."errorMessage", "public"."OtaUpgradeRecord"."startedAt", "public"."OtaUpgradeRecord"."finishedAt", "public"."OtaUpgradeRecord"."verifiedAt", "public"."OtaUpgradeRecord"."createdById", "public"."OtaUpgradeRecord"."createdByName", "public"."OtaUpgradeRecord"."createdAt", "public"."OtaUpgradeRecord"."updatedAt" FROM "public"."OtaUpgradeRecord" WHERE 1=1 ORDER BY "public"."OtaUpgradeRecord"."createdAt" DESC LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Device"."id", "public"."Device"."providerId", "public"."Device"."deviceId", "public"."Device"."name", "public"."Device"."deviceType", "public"."Device"."productModel", "public"."Device"."companyId", "public"."Device"."imei", "public"."Device"."serialNumber", "public"."Device"."simNumber", "public"."Device"."iccid", "public"."Device"."firmwareVersion", "public"."Device"."hardwareVersion", "public"."Device"."bluetoothName", "public"."Device"."bleMac", "public"."Device"."nfcSupported", "public"."Device"."gpsSupported", "public"."Device"."loraSupported", "public"."Device"."remoteUnlockSupported", "public"."Device"."keyboardSupported", "public"."Device"."batteryLevel", "public"."Device"."signalStrength", "public"."Device"."lockStatus", "public"."Device"."shackleStatus", "public"."Device"."onlineStatus", "public"."Device"."lastConnectionAt", "public"."Device"."lastLocationLat", "public"."Device"."lastLocationLng", "public"."Device"."lastAddress", "public"."Device"."status", "public"."Device"."notes", "public"."Device"."metadata", "public"."Device"."createdAt", "public"."Device"."updatedAt", "public"."Device"."deletedAt" FROM "public"."Device" WHERE "public"."Device"."deletedAt" IS NULL ORDER BY "public"."Device"."createdAt" DESC OFFSET $1
+prisma:query SELECT "public"."DeviceDiagnosisLog"."id", "public"."DeviceDiagnosisLog"."deviceId", "public"."DeviceDiagnosisLog"."deviceName", "public"."DeviceDiagnosisLog"."productModel", "public"."DeviceDiagnosisLog"."companyId", "public"."DeviceDiagnosisLog"."diagnosisType", "public"."DeviceDiagnosisLog"."logLevel", "public"."DeviceDiagnosisLog"."summary", "public"."DeviceDiagnosisLog"."fullLog", "public"."DeviceDiagnosisLog"."rawPayloadJson", "public"."DeviceDiagnosisLog"."source", "public"."DeviceDiagnosisLog"."attachmentUrl", "public"."DeviceDiagnosisLog"."uploadedById", "public"."DeviceDiagnosisLog"."uploadedByName", "public"."DeviceDiagnosisLog"."uploadedAt", "public"."DeviceDiagnosisLog"."createdAt" FROM "public"."DeviceDiagnosisLog" WHERE 1=1 ORDER BY "public"."DeviceDiagnosisLog"."uploadedAt" DESC LIMIT $1 OFFSET $2
+prisma:query BEGIN
+prisma:query SELECT "public"."User"."id" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."AuditLog" ("id","userId","action","entity","description","newValues","createdAt") VALUES ($1,$2,CAST($3::text AS "public"."AuditAction"),$4,$5,$6,$7) RETURNING "public"."AuditLog"."id"
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE "public"."AuditLog"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query COMMIT
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+[AUTH] bypass monitoring demo route: GET /api/monitoring/devices
+[AUTH] bypass monitoring demo route: GET /api/monitoring/geofences
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."email" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+prisma:query BEGIN
+prisma:query UPDATE "public"."User" SET "lastLoginAt" = $1, "updatedAt" = $2 WHERE ("public"."User"."id" = $3 AND 1=1) RETURNING "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt"
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE "public"."User"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2
+prisma:query COMMIT
+prisma:query BEGIN
+prisma:query SELECT "public"."User"."id" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."AuditLog" ("id","userId","action","entity","entityId","description","ipAddress","userAgent","createdAt") VALUES ($1,$2,CAST($3::text AS "public"."AuditAction"),$4,$5,$6,$7,$8,$9) RETURNING "public"."AuditLog"."id"
+prisma:query SELECT "public"."AuditLog"."id", "public"."AuditLog"."userId", "public"."AuditLog"."action"::text, "public"."AuditLog"."entity", "public"."AuditLog"."entityId", "public"."AuditLog"."description", "public"."AuditLog"."oldValues", "public"."AuditLog"."newValues", "public"."AuditLog"."ipAddress", "public"."AuditLog"."userAgent", "public"."AuditLog"."createdAt" FROM "public"."AuditLog" WHERE "public"."AuditLog"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query COMMIT
+prisma:query SELECT "public"."User"."id", "public"."User"."name", "public"."User"."email", "public"."User"."passwordHash", "public"."User"."phone", "public"."User"."status"::text, "public"."User"."companyId", "public"."User"."roleId", "public"."User"."lastLoginAt", "public"."User"."createdAt", "public"."User"."updatedAt", "public"."User"."deletedAt" FROM "public"."User" WHERE ("public"."User"."id" = $1 AND "public"."User"."deletedAt" IS NULL) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" IN ($1) OFFSET $2

@@ -1,18 +1,22 @@
 export type EventSeverity = "INFO" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type AlarmStatus = "NEW" | "REVIEWED" | "RESOLVED" | "DISMISSED";
+export type SortOrder = "ASC" | "DESC";
 
 export interface EventQueryParams {
   productModel?: string;
   deviceId?: string;
-  gpsTimeFrom?: string;
-  gpsTimeTo?: string;
+  startDate?: string;
+  endDate?: string;
   eventType?: string;
-  alarmEvent?: string;
+  alarmType?: string;
   dataType?: string;
   affiliatedCompany?: string;
-  sendTimeFrom?: string;
-  sendTimeTo?: string;
+  pushType?: string;
+  sendingStatus?: string;
+  sortBy?: string;
+  sortOrder?: SortOrder;
   page?: number;
-  pageSize?: number;
+  limit?: number;
 }
 
 export interface DeviceEventItem {
@@ -23,6 +27,7 @@ export interface DeviceEventItem {
   productModel?: string;
   gpsTime?: string;
   batteryLevel?: number;
+  eventName?: string;
   events?: string;
   eventType: string;
   lockStatus?: string;
@@ -30,7 +35,10 @@ export interface DeviceEventItem {
   latitude?: number;
   longitude?: number;
   locationText?: string;
+  eventImageUrl?: string | null;
+  description?: string;
   operatingInfo?: string;
+  source?: string;
   severity?: EventSeverity;
   rawPayload?: unknown;
   createdAt: string;
@@ -38,13 +46,16 @@ export interface DeviceEventItem {
 
 export interface AlarmEventItem {
   id: string;
+  eventId?: string;
   sortNo?: number;
   deviceId: string;
   deviceName?: string;
   productModel?: string;
   gpsTime?: string;
   batteryLevel?: number;
-  alarmEvent: string;
+  alarmType: string;
+  alarmEvent?: string;
+  alarmLevel: Exclude<EventSeverity, "INFO">;
   alarmReason?: string;
   operatingInfo?: string;
   lockStatus?: string;
@@ -52,8 +63,12 @@ export interface AlarmEventItem {
   latitude?: number;
   longitude?: number;
   locationText?: string;
-  severity: EventSeverity;
-  handledStatus?: "NEW" | "ACKNOWLEDGED" | "RESOLVED" | "IGNORED";
+  eventImageUrl?: string | null;
+  description?: string;
+  status: AlarmStatus;
+  severity?: EventSeverity;
+  handledStatus?: AlarmStatus;
+  rawPayload?: unknown;
   createdAt: string;
 }
 
@@ -69,9 +84,20 @@ export interface PushEventItem {
   sendingContent: string;
   sendTime: string;
   createdAt: string;
+  rawPayload?: unknown;
 }
 
 export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface LegacyPaginatedResponse<T> {
   items: T[];
   total: number;
   page: number;

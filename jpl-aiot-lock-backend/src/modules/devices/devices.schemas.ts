@@ -1,6 +1,9 @@
 import { z } from "zod";
 
 const optionalTrimmed = z.string().trim().optional().nullable();
+const statusSchema = z.enum(["ONLINE", "OFFLINE", "SLEEP", "DORMANT", "UNKNOWN", "DELETED"]);
+const sortBySchema = z.enum(["deviceName", "deviceId", "status", "createdAt"]).optional();
+const sortOrderSchema = z.enum(["asc", "desc", "ASC", "DESC"]).optional();
 
 export const deviceFiltersSchema = z.object({
   deviceType: z.string().optional(),
@@ -8,15 +11,20 @@ export const deviceFiltersSchema = z.object({
   deviceId: z.string().optional(),
   companyId: z.string().optional(),
   affiliatedCompany: z.string().optional(),
+  affiliatedCompanyId: z.string().optional(),
   deviceName: z.string().optional(),
   search: z.string().optional(),
-  status: z.string().optional(),
+  status: statusSchema.optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  sortBy: sortBySchema,
+  sortOrder: sortOrderSchema.default("desc"),
 });
 
 export const createDeviceSchema = z.object({
-  deviceId: z.string().trim().min(1),
-  name: z.string().trim().min(1).optional(),
-  deviceName: z.string().trim().min(1).optional(),
+  deviceId: z.string().trim().min(1).max(64).regex(/^[A-Za-z0-9._:-]+$/, "INVALID_DEVICE_ID"),
+  name: z.string().trim().min(1).max(100).optional(),
+  deviceName: z.string().trim().max(100).optional(),
   deviceType: z.string().trim().min(1),
   productModel: z.string().trim().min(1),
   companyId: z.string().trim().min(1).optional(),
@@ -24,15 +32,18 @@ export const createDeviceSchema = z.object({
   imei: optionalTrimmed,
   serialNumber: optionalTrimmed,
   simNumber: optionalTrimmed,
+  phoneNumber: optionalTrimmed,
   iccid: optionalTrimmed,
+  simIccid: optionalTrimmed,
   firmwareVersion: optionalTrimmed,
   hardwareVersion: optionalTrimmed,
   bluetoothName: optionalTrimmed,
   notes: optionalTrimmed,
+  description: optionalTrimmed,
 });
 
 export const updateDeviceSchema = createDeviceSchema.partial().extend({
-  onlineStatus: z.string().optional(),
+  onlineStatus: statusSchema.optional(),
   status: z.string().optional(),
 });
 

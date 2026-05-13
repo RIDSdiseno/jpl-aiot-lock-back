@@ -1,0 +1,13 @@
+
+> jpl-aiot-lock-backend@1.0.0 dev
+> ts-node-dev --respawn --transpile-only src/server.ts
+
+[INFO] 11:02:11 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.3)
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3005 in development mode
+[INFO] 11:10:31 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\user-center\userCenter.routes.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3005 in development mode
+[INFO] 11:16:13 Restarting: C:\Users\JUAN\Desktop\Aiot Lock\Back\jpl-aiot-lock-backend\src\modules\user-center\userCenter.routes.ts has been modified
+[MONITORING] routes mounted at /api/monitoring
+JPL-AIOT-LOCK API running on port 3005 in development mode

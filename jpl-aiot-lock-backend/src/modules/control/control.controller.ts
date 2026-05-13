@@ -69,37 +69,39 @@ export function redirectPasswordUpdate(req: Request, res: Response, next: NextFu
   }
 }
 
-export function redirectParameterLatest(req: Request, res: Response, next: NextFunction) {
+export async function redirectParameterLatest(req: Request, res: Response, next: NextFunction) {
   try {
     requireControlPermission(req, "CONTROL_PARAMETER_VIEW");
-    res.json(ok(parameterService.getParameters(req.params.deviceId)));
+    res.json(ok(await parameterService.getParameters(req.params.deviceId)));
   } catch (error) {
     next(error);
   }
 }
 
-export function redirectParameterRead(req: Request, res: Response, next: NextFunction) {
+export async function redirectParameterRead(req: Request, res: Response, next: NextFunction) {
   try {
     requireControlPermission(req, "CONTROL_PARAMETER_READ");
-    res.json(ok(parameterService.readParameters(req.params.deviceId, req.user?.id)));
+    const result = await parameterService.readParameters(req.params.deviceId, req.user?.id);
+    res.status(result.ok === false ? 409 : 200).json(result.ok === false ? result : ok(result));
   } catch (error) {
     next(error);
   }
 }
 
-export function redirectParameterUpdate(req: Request, res: Response, next: NextFunction) {
+export async function redirectParameterUpdate(req: Request, res: Response, next: NextFunction) {
   try {
     requireControlPermission(req, "CONTROL_PARAMETER_UPDATE");
-    res.json(ok(parameterService.updateParameters(req.params.deviceId, req.body.fields ?? [], req.user?.id)));
+    const result = await parameterService.updateParameters(req.params.deviceId, req.body.parameters ?? req.body.fields ?? [], req.user?.id);
+    res.status(result.ok === false ? 409 : 200).json(result.ok === false ? result : ok(result));
   } catch (error) {
     next(error);
   }
 }
 
-export function redirectParameterHistory(req: Request, res: Response, next: NextFunction) {
+export async function redirectParameterHistory(req: Request, res: Response, next: NextFunction) {
   try {
     requireControlPermission(req, "CONTROL_PARAMETER_VIEW");
-    res.json(ok(parameterService.getSnapshots(req.params.deviceId)));
+    res.json(ok(await parameterService.getHistory(req.params.deviceId)));
   } catch (error) {
     next(error);
   }

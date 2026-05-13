@@ -13,7 +13,10 @@ router.get("/events/alarms", eventsController.listAlarms);
 router.get("/events/alarms/export", eventsController.exportAlarms);
 router.get("/events/push", eventsController.listPush);
 router.get("/events/push/export", eventsController.exportPush);
+router.get("/events/options", eventsController.options);
 router.get("/events/summary", eventsController.summary);
+router.get("/events/:eventId", eventsController.detail);
+router.patch("/events/alarms/:alarmId/status", eventsController.updateAlarmStatus);
 router.get("/events", eventsController.list);
 router.get(
   "/locks/:lockId/events",
